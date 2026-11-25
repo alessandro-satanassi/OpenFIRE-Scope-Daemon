@@ -45,6 +45,9 @@ public:
 
     // EN: sends a frame to every paired scope that owns its slot (test clip). / IT: manda un frame a ogni mirino abbinato che possiede il suo slot (clip di prova).
     void submitFrameToAll(const EncodedFramePtr &frame);
+    // EN: last frame sent whole to the scope of the player (preview "Output"); null = no scope or no frame yet.
+    // IT: ultimo frame inviato intero al mirino del giocatore (anteprima "Uscita"); nullo = nessun mirino o nessun frame.
+    EncodedFramePtr sentFrame(int player) const;
     void setVideoSource(SourceKind source);   // EN: source shown in the table / IT: sorgente mostrata nella tabella
 
     void fillSlots(QVector<SlotStatus> *slots) const;

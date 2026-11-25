@@ -38,6 +38,7 @@
 #include <QVBoxLayout>
 
 #include "OpenFIRE_Scope_Protocol.h"
+#include "app/Autostart.h"
 #include "capture/ScreenCapture.h"
 
 namespace {
@@ -170,6 +171,11 @@ QWidget *SettingsDialog::buildAdvancedTab()
 {
     auto *page = new QWidget();
     auto *form = new QFormLayout(page);
+
+    m_autostart = new QCheckBox(tr("Start at login"));
+    m_shownAutostart = Autostart::isEnabled();
+    m_autostart->setChecked(m_shownAutostart);
+    form->addRow(m_autostart);
 
     auto *discoveryRow = new QHBoxLayout();
     m_shownDiscoveryPort = m_settings->discoveryPort();
@@ -305,5 +311,10 @@ void SettingsDialog::accept()
         m_settings->setLightgunMap(map);
     }
     m_settings->notifyChanged();
+    if (m_autostart->isChecked() != m_shownAutostart) {
+        QString error;
+        if (!Autostart::setEnabled(m_autostart->isChecked(), &error))
+            QMessageBox::warning(this, windowTitle(), tr("Start at login cannot be changed: %1").arg(error));
+    }
     QDialog::accept();
 }

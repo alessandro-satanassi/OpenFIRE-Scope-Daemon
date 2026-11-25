@@ -13,11 +13,13 @@ class Settings;
 // EN: Discovery on 127.0.0.1:47810 (QUdpSocket in the main thread): to "WHOAMI" it answers at once to the
 //     sender with the text given by the daemon, from the state in memory, never touching the serial ports.
 //     Busy port: no discovery, the icon turns yellow and it is tried again every 5 s. A port changed in the
-//     settings that is busy: the old one stays.
+//     settings that is busy: the old one stays. "SUSPEND;T=n" and "RESUME" (OpenFIRE App) go to the
+//     command handler, without an answer.
 // IT: Discovery su 127.0.0.1:47810 (QUdpSocket nel thread principale): a "WHOAMI" risponde subito al
 //     mittente con il testo dato dal demone, dallo stato in memoria, senza mai toccare le seriali.
 //     Porta occupata: niente discovery, l'icona diventa gialla e si riprova ogni 5 s. Una porta cambiata
-//     nelle impostazioni e occupata: resta la vecchia.
+//     nelle impostazioni e occupata: resta la vecchia. "SUSPEND;T=n" e "RESUME" (App OpenFIRE) vanno al
+//     gestore dei comandi, senza risposta.
 class Discovery : public QObject
 {
     Q_OBJECT
@@ -25,6 +27,9 @@ class Discovery : public QObject
 public:
     Discovery(Settings *settings, std::function<QByteArray()> answer, QObject *parent = nullptr);
     ~Discovery() override;
+
+    using CommandHandler = std::function<void(const QByteArray &command)>;
+    void setCommandHandler(CommandHandler handler) { m_command = std::move(handler); }
 
     void start();
     void stop();
@@ -54,6 +59,7 @@ private:
 
     Settings *m_settings = nullptr;
     std::function<QByteArray()> m_answer;
+    CommandHandler m_command;
     QUdpSocket *m_socket = nullptr;
     quint16 m_wanted = 0;
     quint16 m_released = 0;           // EN: port released by releaseOld() / IT: porta rilasciata da releaseOld()

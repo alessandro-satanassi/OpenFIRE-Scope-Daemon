@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
+#include <QComboBox>
 #include <QCloseEvent>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -40,8 +41,48 @@
 
 #include "ui/PreviewWidget.h"
 #include "ui/SettingsDialog.h"
+#include "video/OpenFIRE_Scope_Decoder.h"
+
+#include <vector>
 
 namespace {
+// EN: decodes a frame sent to the scope with the decoder of the firmware, so the view shows what the scope gets.
+//     Its tables are global: only in the GUI thread. Black where the scope draws nothing (outside the circle).
+// IT: decodifica un frame inviato al mirino con il decoder del firmware, cosi' la vista mostra cio' che riceve il
+//     mirino. Le sue tabelle sono globali: solo nel thread della GUI. Nero dove il mirino non disegna (fuori dal cerchio).
+QImage decodeSentFrame(const EncodedFrame &frame)
+{
+    static bool tablesReady = false;
+    if (!tablesReady) {
+        scopeDecInit();
+        tablesReady = true;
+    }
+    std::vector<uint16_t> work(SCOPE_DEC_W * SCOPE_DEC_SLICE_H);
+    std::vector<uint16_t> block(SCOPE_DEC_W * SCOPE_DEC_SLICE_H);
+    QImage image(SCOPE_DEC_W, SCOPE_DEC_H, QImage::Format_RGB16);
+    image.fill(Qt::black);
+    QByteArray data;
+    for (int sy = 0; sy < SCOPE_DEC_SLICES && sy < OF_SCOPE_STRIPS; ++sy) {
+        const EncodedSlice &slice = frame.slices[sy];
+        if (slice.data.isEmpty() || slice.data.size() > 0xFFFF) continue;
+        // EN: the decoder reads up to 4 bytes 0xFF after the data. / IT: il decoder legge fino a 4 byte 0xFF dopo i dati.
+        data = slice.data;
+        data.append(SCOPE_DEC_MARGIN, char(0xFF));
+        if (!scopeDecSlice(reinterpret_cast<const uint8_t *>(data.constData()), uint16_t(slice.data.size()), uint8_t(sy),
+                           slice.q, work.data(), nullptr))
+            continue;
+        std::fill(block.begin(), block.end(), uint16_t(0));
+        scopeDecCopySlice(work.data(), uint8_t(sy), block.data());
+        // EN: RGB565 in the byte order of the display (big-endian) -> the order of QImage. / IT: RGB565 nell'ordine dei byte del display (big-endian) -> l'ordine di QImage.
+        for (int r = 0; r < SCOPE_DEC_SLICE_H; ++r) {
+            auto *dst = reinterpret_cast<quint16 *>(image.scanLine(sy * SCOPE_DEC_SLICE_H + r));
+            const uint16_t *src = block.data() + r * SCOPE_DEC_W;
+            for (int x = 0; x < SCOPE_DEC_W; ++x) dst[x] = quint16((src[x] >> 8) | (src[x] << 8));
+        }
+    }
+    return image;
+}
+
 
 enum PlayerColumn {
     ColScope, ColPort, ColChannel, ColFirmware, ColUdpPort, ColSource,
@@ -197,8 +238,13 @@ QWidget *MainWindow::buildPreviewTab()
     m_showPreview = new QCheckBox(tr("Show preview"));
     m_circle = new QCheckBox(tr("Circle"));
     m_circle->setToolTip(tr("Darken the pixels the scope does not show"));
+    m_view = new QComboBox();
+    m_view->addItem(tr("Input"));
+    m_view->addItem(tr("Output"));
+    m_view->setToolTip(tr("Input: the frame that enters the daemon. Output: the last frame sent to the scope, decoded as the scope does."));
     options->addWidget(m_showPreview);
     options->addWidget(m_circle);
+    options->addWidget(m_view);
     options->addStretch();
     layout->addLayout(options);
 
@@ -217,17 +263,20 @@ QWidget *MainWindow::buildPreviewTab()
 
     connect(m_showPreview, &QCheckBox::toggled, this, [this](bool on) {
         m_circle->setEnabled(on);
-        if (!on) {
-            for (PreviewWidget *w : m_preview) w->setFrame(QImage());
-            for (quint64 &seq : m_previewSeq) seq = 0;
-        }
+        m_view->setEnabled(on);
+        if (!on) clearPreview();
         updatePreviewTimer();
+        refreshPreview();
+    });
+    connect(m_view, qOverload<int>(&QComboBox::currentIndexChanged), this, [this]() {
+        clearPreview();
         refreshPreview();
     });
     connect(m_circle, &QCheckBox::toggled, this, [this](bool on) {
         for (PreviewWidget *w : m_preview) w->setCircle(on);
     });
     m_circle->setEnabled(false);
+    m_view->setEnabled(false);
 
     return page;
 }
@@ -384,8 +433,23 @@ void MainWindow::refreshPreview()
         case SourceKind::Dxgi:      source = QStringLiteral("DXGI"); break;
         case SourceKind::Clip:      source = tr("clip"); break;
         }
-        m_preview[i]->setLabel(tr("P%1 · %2 · %3 fps").arg(s.player).arg(source).arg(qRound(s.fpsIn)));
+        const bool output = m_view->currentIndex() == 1;
+        m_preview[i]->setLabel(tr("P%1 · %2 · %3 fps").arg(s.player).arg(source).arg(qRound(output ? s.fpsOut : s.fpsIn)));
         m_preview[i]->setPaused(s.source == SourceKind::UdpPaused);
+
+        if (output) {
+            // EN: the last frame sent whole to the scope, whatever the source; decoded only when it is a new one.
+            // IT: l'ultimo frame inviato intero al mirino, qualunque sia la sorgente; si decodifica solo quando e' nuovo.
+            const EncodedFramePtr sent = m_showPreview->isChecked() ? m_daemon->sentFrame(s.player) : EncodedFramePtr();
+            if (!sent) {
+                if (m_outputFrame[i]) m_preview[i]->setFrame(QImage());
+                m_outputFrame[i].reset();
+            } else if (sent != m_outputFrame[i]) {
+                m_outputFrame[i] = sent;
+                m_preview[i]->setFrame(decodeSentFrame(*sent));
+            }
+            continue;
+        }
 
         // EN: an image only with a live source (UDP or DXGI) and a frame of that source; otherwise "No frame" or "Paused".
         // IT: un'immagine solo con una sorgente viva (UDP o DXGI) e un frame di quella sorgente; altrimenti "Nessun frame" o "In pausa".
@@ -400,6 +464,13 @@ void MainWindow::refreshPreview()
             m_preview[i]->setFrame(QImage(frame->rgb, OF_SCOPE_W, OF_SCOPE_H, InputFrame::Stride, QImage::Format_RGB888).copy());
         }
     }
+}
+
+void MainWindow::clearPreview()
+{
+    for (PreviewWidget *w : m_preview) w->setFrame(QImage());
+    for (quint64 &seq : m_previewSeq) seq = 0;
+    for (EncodedFramePtr &frame : m_outputFrame) frame.reset();
 }
 
 void MainWindow::updatePreviewTimer()

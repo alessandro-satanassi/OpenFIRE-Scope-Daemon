@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
     src/app/SingleInstance.h
     src/app/SingleInstance.cpp
     src/app/Status.h
+    src/app/Autostart.h
+    src/app/Autostart.cpp
     src/serial/NativeSerial.h
     src/dongle/EncodedFrame.h
     src/dongle/UsbFrame.h
@@ -60,6 +62,8 @@ set(PROJECT_SOURCES
     src/video/ScopeEncoder.cpp
     src/video/RateControl.h
     src/video/RateControl.cpp
+    src/video/OpenFIRE_Scope_Decoder.h
+    src/video/OpenFIRE_Scope_Decoder.cpp
     src/video/HiResTimer.h
     src/video/SlotEncoder.h
     src/video/SlotEncoder.cpp

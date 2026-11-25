@@ -26,6 +26,7 @@
 
 class QAction;
 class QCheckBox;
+class QComboBox;
 class QLabel;
 class QPlainTextEdit;
 class QTableWidget;
@@ -68,6 +69,7 @@ private:
     void refreshDevices();
     void refreshPreview();
     void updatePreviewTimer();
+    void clearPreview();
     void appendLog(const Log::Entry &entry);
     void copyLog();
     void openSettings();
@@ -84,8 +86,10 @@ private:
     QVector<DeviceStatus> m_shownDevices;
     QCheckBox *m_showPreview = nullptr;
     QCheckBox *m_circle = nullptr;
+    QComboBox *m_view = nullptr;        // EN: 0 = input, 1 = output / IT: 0 = ingresso, 1 = uscita
     PreviewWidget *m_preview[Settings::Players] = {};
     quint64 m_previewSeq[Settings::Players] = {};   // EN: frame shown, 0 = none / IT: frame mostrato, 0 = nessuno
+    EncodedFramePtr m_outputFrame[Settings::Players];   // EN: frame sent shown in "Output" / IT: frame inviato mostrato in "Uscita"
     QPlainTextEdit *m_log = nullptr;
     QAction *m_suspendAction = nullptr;
     QLabel *m_statusText = nullptr;

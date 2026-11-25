@@ -43,6 +43,12 @@ Daemon::Daemon(Settings *settings, QObject *parent)
     connect(m_udp, &UdpInput::changed, this, &Daemon::statusChanged);
     m_discovery = new Discovery(m_settings, [this]() { return discoveryAnswer(); }, this);
     connect(m_discovery, &Discovery::changed, this, &Daemon::statusChanged);
+    m_discovery->setCommandHandler([this](const QByteArray &command) { handleCommand(command); });
+    m_resumeTimer = new QTimer(this);
+    m_resumeTimer->setSingleShot(true);
+    connect(m_resumeTimer, &QTimer::timeout, this, [this]() {
+        endCommandSuspend(tr("Resumed: the time asked for by the OpenFIRE App is over"));
+    });
 
     // EN: one encoder per slot, running while the slot has a paired scope; with the test clip they stay off.
     // IT: un encoder per slot, attivo mentre lo slot ha un mirino abbinato; con la clip di prova restano spenti.
@@ -113,6 +119,7 @@ void Daemon::stop()
     m_running = false;
     if (m_clip) m_clip->stop();
     m_captureTimer->stop();
+    m_resumeTimer->stop();
     m_capture->stopCapture();
     m_aim->stopInput();
     m_dongles->stop();
@@ -251,11 +258,52 @@ QString Daemon::summary() const
 
 void Daemon::setSuspended(bool suspended)
 {
+    // EN: a choice of the user ends the suspension of the App (and its timer). / IT: una scelta dell'utente chiude la sospensione dell'App (e il suo timer).
+    if (m_commandSuspend) {
+        m_commandSuspend = false;
+        m_resumeTimer->stop();
+    }
+    applySuspended(suspended, suspended ? tr("Suspended: serial ports released") : tr("Resumed"));
+}
+
+void Daemon::handleCommand(const QByteArray &command)
+{
+    if (command == "RESUME") {
+        if (m_commandSuspend) endCommandSuspend(tr("Resumed by the OpenFIRE App"));
+        return;
+    }
+    // EN: "SUSPEND" or "SUSPEND;T=n", n from 1 to 600 s; another or missing value = 120 s.
+    // IT: "SUSPEND" o "SUSPEND;T=n", n da 1 a 600 s; un valore diverso o assente = 120 s.
+    int seconds = 120;
+    if (command.startsWith("SUSPEND;T=")) {
+        bool ok = false;
+        const int value = command.mid(10).toInt(&ok);
+        if (ok && value >= 1 && value <= 600) seconds = value;
+    }
+    if (m_suspended && !m_commandSuspend) {
+        Log::info(tr("The OpenFIRE App asks to suspend: already suspended by the user"));
+        return;
+    }
+    m_commandSuspend = true;
+    m_resumeTimer->start(seconds * 1000);
+    if (m_suspended) Log::info(tr("The OpenFIRE App extends the suspension to %1 s").arg(seconds));
+    else applySuspended(true, tr("Suspended by the OpenFIRE App for at most %1 s: serial ports released").arg(seconds));
+}
+
+void Daemon::endCommandSuspend(const QString &logText)
+{
+    m_commandSuspend = false;
+    m_resumeTimer->stop();
+    applySuspended(false, logText);
+}
+
+void Daemon::applySuspended(bool suspended, const QString &logText)
+{
     if (m_suspended == suspended) return;
     m_suspended = suspended;
     // EN: closes every port and stops the probes / starts again. / IT: chiude tutte le porte e ferma le prove / riparte.
     m_dongles->setSuspended(suspended);
-    Log::info(suspended ? tr("Suspended: serial ports released") : tr("Resumed"));
+    Log::info(logText);
     emit suspendedChanged(suspended);
     emit statusChanged();
 }
@@ -298,6 +346,11 @@ void Daemon::checkCapture()
 InputFramePtr Daemon::latestFrame(int player) const
 {
     return m_udp->latestFrame(player);
+}
+
+EncodedFramePtr Daemon::sentFrame(int player) const
+{
+    return m_dongles->sentFrame(player);
 }
 
 QByteArray Daemon::discoveryAnswer() const

@@ -8,7 +8,7 @@
 
 The daemon runs in the notification area (the menu bar on macOS). It receives the video of each player from the games over UDP on 127.0.0.1 (or, on Windows, from a screen capture), encodes it and sends it through the USB dongles to the round display of the OpenFIRE scopes. Up to 4 players.
 
-> **Status: in development.** Phase 5: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview, the video to the scopes (encoder, bandwidth control, pause and resend) and, on Windows, the screen capture around the aim point of each lightgun (DXGI and Raw Input).
+> **Status: in development.** Phase 6: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview of the input and of the output, the video to the scopes (encoder, bandwidth control, pause and resend), on Windows the screen capture around the aim point of each lightgun (DXGI and Raw Input), start at login, suspension asked by the OpenFIRE App, udev rule for Linux.
 
 ## Systems
  - Windows 10 (1809) or later, 64 bit.
@@ -32,8 +32,25 @@ Only one daemon runs per user: starting it again opens the window of the running
 ## Fake game for the bench
 `of_test_sender` (built with the daemon, in the build folder) sends animated test images to the daemon over UDP, as a game would. It takes the ports from the discovery, otherwise it uses 47811-47814. Examples: `of_test_sender` (4 players, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` lists every option. The images appear in the Preview tab and reach the paired scopes.
 
+## Preview
+The Preview tab shows, for each player, the **Input** (the frame that enters the daemon, before the encoder) or the **Output** (the last frame sent whole to the scope, decoded with the decoder of the scope firmware: what the scope receives). The images are made only while the window is visible and "Show preview" is ticked.
+
+## Start at login
+Settings > Advanced > "Start at login" (off by default) starts the daemon in the notification area when the user logs in: on Windows with the `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` key, on Linux with `~/.config/autostart/openfire-scope-daemon.desktop` (it starts the AppImage file), on macOS with `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. If the program is moved, starting it once by hand updates the entry.
+
+## OpenFIRE App
+Before it restarts an ESP32 board, the OpenFIRE App sends `SUSPEND;T=120` to the discovery port: the daemon releases the serial ports, as with "Suspend" in the menu, and resumes by itself after at most 120 s, or before when the App connects to a board again (`RESUME`). Only from 127.0.0.1. A suspension chosen by the user from the menu is never ended by the App.
+
 ## Linux: serial port permissions
-If a dongle shows "access denied", the window shows the command to run once to add the udev rule.
+The udev rule `linux/70-openfire-scope.rules` (also in the Linux package, next to the AppImage) lets the logged-in user open the dongles without the `dialout` group and keeps ModemManager away from them. Install it once:
+```
+sudo cp 70-openfire-scope.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+If a dongle shows "access denied", the window also shows a command to run once that writes the same rule.
+
+## macOS: first start
+The app is not signed. At the first start macOS blocks it: open System Settings > Privacy & Security and click "Open Anyway" next to the message about OpenFIRE Scope Daemon, then confirm. This is needed only once. Alternatively, in the Terminal: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
 
 ## Settings
 The settings are in an INI file:
@@ -61,7 +78,7 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
 
 Il demone gira nell'area di notifica (nella barra dei menu su macOS). Riceve il video di ogni giocatore dai giochi via UDP su 127.0.0.1 (oppure, su Windows, da una cattura dello schermo), lo codifica e lo manda tramite i dongle USB al display rotondo dei mirini OpenFIRE. Fino a 4 giocatori.
 
-> **Stato: in sviluppo.** Fase 5: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima, il video ai mirini (encoder, controllo di banda, pausa e reinvio) e, su Windows, la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input).
+> **Stato: in sviluppo.** Fase 6: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima dell'ingresso e dell'uscita, il video ai mirini (encoder, controllo di banda, pausa e reinvio), su Windows la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input), avvio all'accesso, sospensione chiesta dall'App OpenFIRE, regola udev per Linux.
 
 ## Sistemi
  - Windows 10 (1809) o successivo, 64 bit.
@@ -85,8 +102,25 @@ Gira un solo demone per utente: avviarlo di nuovo apre la finestra di quello gi�
 ## Finto gioco per il banco
 `of_test_sender` (compilato insieme al demone, nella cartella di build) manda al demone in UDP immagini di prova animate, come farebbe un gioco. Prende le porte dalla discovery, altrimenti usa 47811-47814. Esempi: `of_test_sender` (4 giocatori, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` elenca tutte le opzioni. Le immagini compaiono nella scheda Anteprima e arrivano ai mirini abbinati.
 
+## Anteprima
+La scheda Anteprima mostra, per ogni giocatore, l'**Ingresso** (il frame che entra nel demone, prima dell'encoder) o l'**Uscita** (l'ultimo frame inviato intero al mirino, decodificato con il decoder del firmware del mirino: ciò che riceve il mirino). Le immagini si preparano solo con la finestra visibile e "Mostra anteprima" spuntata.
+
+## Avvio all'accesso
+Impostazioni > Avanzate > "Avvia all'accesso" (spento in partenza) avvia il demone nell'area di notifica quando l'utente accede: su Windows con la chiave `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, su Linux con `~/.config/autostart/openfire-scope-daemon.desktop` (avvia il file AppImage), su macOS con `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. Se il programma viene spostato, avviarlo una volta a mano aggiorna la voce.
+
+## App OpenFIRE
+Prima di riavviare una scheda ESP32, l'App OpenFIRE manda `SUSPEND;T=120` alla porta di discovery: il demone rilascia le porte seriali, come con "Sospendi" nel menu, e riprende da solo dopo al massimo 120 s, o prima quando l'App si ricollega a una scheda (`RESUME`). Solo da 127.0.0.1. Una sospensione scelta dall'utente dal menu non la chiude mai l'App.
+
 ## Linux: permessi delle porte seriali
-Se un dongle risulta "accesso negato", la finestra mostra il comando da eseguire una volta per aggiungere la regola udev.
+La regola udev `linux/70-openfire-scope.rules` (anche nel pacchetto per Linux, accanto all'AppImage) permette all'utente collegato di aprire i dongle senza il gruppo `dialout` e tiene ModemManager lontano da loro. Si installa una volta:
+```
+sudo cp 70-openfire-scope.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+Se un dongle risulta "accesso negato", la finestra mostra anche un comando da eseguire una volta che scrive la stessa regola.
+
+## macOS: primo avvio
+L'app non è firmata. Al primo avvio macOS la blocca: aprire Impostazioni di Sistema > Privacy e sicurezza e fare clic su "Apri comunque" accanto al messaggio su OpenFIRE Scope Daemon, poi confermare. Serve una volta sola. In alternativa, nel Terminale: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
 
 ## Impostazioni
 Le impostazioni sono in un file INI:

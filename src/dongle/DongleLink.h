@@ -60,6 +60,10 @@ public:
     quint64 qSum() const { return m_qSum.load(); }
     quint64 resends() const { return m_resends.load(); }
 
+    // EN: last frame sent whole to the scope, for the "Output" view of the preview; null = none yet.
+    // IT: ultimo frame inviato intero al mirino, per la vista "Uscita" dell'anteprima; nullo = nessuno ancora.
+    EncodedFramePtr shownFrame() const;
+
 signals:
     void opened(int result, const QString &detail);   // NativeSerial::OpenResult
     void noAnswer();
@@ -149,6 +153,9 @@ private:
     std::atomic<quint64> m_videoBytesSent{ 0 };
     std::atomic<quint64> m_qSum{ 0 };
     std::atomic<quint64> m_resends{ 0 };
+
+    mutable QMutex m_shownMutex;
+    EncodedFramePtr m_shown;
 };
 
 #endif // OFD_DONGLELINK_H

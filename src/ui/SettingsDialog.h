@@ -62,11 +62,13 @@ private:
     QSpinBox *m_discoveryPort = nullptr;
     QLineEdit *m_dongleVidPid = nullptr;
     QCheckBox *m_logToFile = nullptr;
+    QCheckBox *m_autostart = nullptr;
     // EN: shown values; a value is saved only if changed, so a command line value never reaches the INI.
     // IT: valori mostrati; un valore si salva solo se cambiato, cosi' un valore della riga di comando non finisce nell'INI.
     int m_shownDiscoveryPort = 0;
     bool m_shownLogToFile = false;
     bool m_shownCaptureEnabled = false;
+    bool m_shownAutostart = false;
 };
 
 #endif // OFD_SETTINGSDIALOG_H

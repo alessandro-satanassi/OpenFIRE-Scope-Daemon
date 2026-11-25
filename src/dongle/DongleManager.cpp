@@ -452,6 +452,12 @@ void DongleManager::submitFrameToAll(const EncodedFramePtr &frame)
     }
 }
 
+EncodedFramePtr DongleManager::sentFrame(int player) const
+{
+    const Entry *e = slotOwner(player);
+    return (e && e->link && e->state == State::Paired) ? e->link->shownFrame() : EncodedFramePtr();
+}
+
 void DongleManager::setVideoSource(SourceKind source)
 {
     if (m_source == source) return;

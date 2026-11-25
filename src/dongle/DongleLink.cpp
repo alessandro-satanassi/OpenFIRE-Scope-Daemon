@@ -38,6 +38,12 @@ DongleLink::~DongleLink()
     wait();
 }
 
+EncodedFramePtr DongleLink::shownFrame() const
+{
+    QMutexLocker lock(&m_shownMutex);
+    return m_shown;
+}
+
 void DongleLink::requestStop()
 {
     m_stop.store(true);
@@ -173,6 +179,10 @@ void DongleLink::run()
                 // EN: sent whole: it becomes the copy for the resend, only in the current generation.
                 // IT: inviato intero: diventa la copia per il reinvio, solo nella generazione corrente.
                 if (m_txFrame && m_txGeneration == m_generation) m_lastSent = m_txFrame;
+                if (m_txFrame) {
+                    QMutexLocker lock(&m_shownMutex);
+                    m_shown = m_txFrame;
+                }
                 m_txFrame.reset();
             }
             m_writing = Writing::None;

@@ -75,4 +75,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: OpenFIRE-Scope-Daemon-${{ matrix.pretty }}-Qt${{ matrix.qt_version }}-${{ matrix.build_type }}
-        path: "OpenFIRE_Scope_Daemon-${{matrix.sys_arch}}.AppImage"
+        # EN: the udev rule goes with the AppImage, which cannot install it. / IT: la regola udev va con l'AppImage, che non puo' installarla.
+        path: |
+          OpenFIRE_Scope_Daemon-${{matrix.sys_arch}}.AppImage
+          linux/70-openfire-scope.rules

@@ -1,0 +1,7 @@
+# OpenFIRE Scope Daemon: USB dongles of the OpenFIRE scopes (303A:1001).
+# EN: the logged-in user opens the port without the dialout group; ModemManager does not open the dongle.
+#     Install: sudo cp 70-openfire-scope.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
+# IT: l'utente collegato apre la porta senza il gruppo dialout; ModemManager non apre il dongle.
+#     Installazione: sudo cp 70-openfire-scope.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", TAG+="uaccess"

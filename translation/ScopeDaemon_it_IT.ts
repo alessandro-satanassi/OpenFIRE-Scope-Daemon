@@ -26,6 +26,35 @@
     </message>
 </context>
 <context>
+    <name>Autostart</name>
+    <message>
+        <location filename="../src/app/Autostart.cpp" line="+151"/>
+        <source>the registry key cannot be written</source>
+        <translation>la chiave del registro non si può scrivere</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <location line="+17"/>
+        <source>%1 cannot be removed</source>
+        <translation>%1 non si può rimuovere</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Start at login: on (%1)</source>
+        <translation>Avvio all'accesso: acceso (%1)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start at login: off</source>
+        <translation>Avvio all'accesso: spento</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Start at login: the entry cannot be updated: %1</source>
+        <translation>Avvio all'accesso: la voce non si può aggiornare: %1</translation>
+    </message>
+</context>
+<context>
     <name>ClipPlayer</name>
     <message>
         <location filename="../src/clip/ClipPlayer.cpp" line="+24"/>
@@ -56,7 +85,12 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+74"/>
+        <location filename="../src/app/Daemon.cpp" line="+50"/>
+        <source>Resumed: the time asked for by the OpenFIRE App is over</source>
+        <translation>Ripreso: il tempo chiesto dall'App OpenFIRE è finito</translation>
+    </message>
+    <message>
+        <location line="+30"/>
         <source>Test clip: %1</source>
         <translation>Clip di prova: %1</translation>
     </message>
@@ -81,7 +115,7 @@
         <translation>I valori della riga di comando valgono solo per questo avvio</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Daemon stopped</source>
         <translation>Demone fermato</translation>
     </message>
@@ -132,7 +166,7 @@
         <translation>Nessun mirino abbinato</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Suspended: serial ports released</source>
         <translation>Sospeso: porte seriali rilasciate</translation>
     </message>
@@ -142,7 +176,27 @@
         <translation>Ripreso</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+6"/>
+        <source>Resumed by the OpenFIRE App</source>
+        <translation>Ripreso dall'App OpenFIRE</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>The OpenFIRE App asks to suspend: already suspended by the user</source>
+        <translation>L'App OpenFIRE chiede di sospendere: già sospeso dall'utente</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>The OpenFIRE App extends the suspension to %1 s</source>
+        <translation>L'App OpenFIRE prolunga la sospensione a %1 s</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Suspended by the OpenFIRE App for at most %1 s: serial ports released</source>
+        <translation>Sospeso dall'App OpenFIRE per al massimo %1 s: porte seriali rilasciate</translation>
+    </message>
+    <message>
+        <location line="+25"/>
         <source>Screen capture on</source>
         <translation>Cattura dello schermo accesa</translation>
     </message>
@@ -276,7 +330,7 @@
         <translation>%1: il mirino P%2 prende il posto</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+86"/>
         <source>%1 and %2 are on the same channel %3</source>
         <translation>%1 e %2 sono sullo stesso canale %3</translation>
     </message>
@@ -339,7 +393,7 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="+102"/>
+        <location filename="../src/ui/MainWindow.cpp" line="+143"/>
         <source>Status</source>
         <translation>Stato</translation>
     </message>
@@ -501,7 +555,22 @@
         <translation>Scurisce i pixel che il mirino non mostra</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+2"/>
+        <source>Input</source>
+        <translation>Ingresso</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Output</source>
+        <translation>Uscita</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Input: the frame that enters the daemon. Output: the last frame sent to the scope, decoded as the scope does.</source>
+        <translation>Ingresso: il frame che entra nel demone. Uscita: l'ultimo frame inviato al mirino, decodificato come fa il mirino.</translation>
+    </message>
+    <message>
+        <location line="+55"/>
         <source>Copy</source>
         <translation>Copia</translation>
     </message>
@@ -635,12 +704,12 @@
         <translation>nessuna sorgente</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>P%1 · %2 · %3 fps</source>
         <translation>P%1 · %2 · %3 fps</translation>
     </message>
     <message numerus="yes">
-        <location line="+50"/>
+        <location line="+71"/>
         <source>Log copied (%n event(s))</source>
         <translation>
             <numerusform>Registro copiato (%n evento)</numerusform>
@@ -727,7 +796,7 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/SettingsDialog.cpp" line="+63"/>
+        <location filename="../src/ui/SettingsDialog.cpp" line="+64"/>
         <source>Settings</source>
         <translation>Impostazioni</translation>
     </message>
@@ -827,7 +896,12 @@
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+22"/>
+        <source>Start at login</source>
+        <translation>Avvia all'accesso</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Restore default</source>
         <translation>Ripristina predefinita</translation>
     </message>
@@ -875,6 +949,11 @@
         <location line="+8"/>
         <source>The dongle VID:PID must be two hexadecimal numbers, for example 303A:1001.</source>
         <translation>Il VID:PID dei dongle deve essere formato da due numeri esadecimali, per esempio 303A:1001.</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Start at login cannot be changed: %1</source>
+        <translation>L'avvio all'accesso non si può cambiare: %1</translation>
     </message>
 </context>
 <context>
@@ -956,7 +1035,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../src/main.cpp" line="+182"/>
+        <location filename="../src/main.cpp" line="+183"/>
         <source>Video from the PC to the OpenFIRE scopes.</source>
         <translation>Video dal PC ai mirini OpenFIRE.</translation>
     </message>
@@ -1001,7 +1080,7 @@
         <translation>La clip di prova non si può usare: vedi il registro.</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+34"/>
         <source>No notification area: the window stays open</source>
         <translation>Nessuna area di notifica: la finestra resta aperta</translation>
     </message>

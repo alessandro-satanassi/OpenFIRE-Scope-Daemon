@@ -37,6 +37,7 @@
 #include <windows.h>
 #endif
 
+#include "app/Autostart.h"
 #include "app/Daemon.h"
 #include "app/Log.h"
 #include "app/Settings.h"
@@ -241,6 +242,7 @@ int main(int argc, char *argv[])
         });
         quitPoll.start(200);
     } else {
+        Autostart::refresh();
         const bool trayAvailable = QSystemTrayIcon::isSystemTrayAvailable();
         window = std::make_unique<MainWindow>(&daemon, trayAvailable);
         QObject::connect(&instance, &SingleInstance::showRequested, window.get(), &MainWindow::showAndRaise);

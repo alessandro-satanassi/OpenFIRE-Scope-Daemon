@@ -25,6 +25,7 @@
 
 #include "app/Settings.h"
 #include "app/Status.h"
+#include "dongle/EncodedFrame.h"
 #include "udp/SlotInput.h"
 
 class AimInput;
@@ -65,8 +66,17 @@ public:
     IconState iconState() const;
     QString summary() const;   // tooltip of the tray icon / suggerimento dell'icona
     InputFramePtr latestFrame(int player) const;   // EN: for the preview / IT: per l'anteprima
+    EncodedFramePtr sentFrame(int player) const;   // EN: preview "Output" / IT: anteprima "Uscita"
 
     bool isSuspended() const { return m_suspended; }
+
+    // EN: from the OpenFIRE App through the discovery port, before it reboots a board: "SUSPEND;T=n" releases the
+    //     serial ports for at most n seconds (default 120), "RESUME" ends it before. A suspension chosen by the
+    //     user is never ended by a command; the user can end a suspension of the App from the menu.
+    // IT: dall'App OpenFIRE tramite la porta di discovery, prima che riavvii una scheda: "SUSPEND;T=n" rilascia le
+    //     seriali per al massimo n secondi (predefinito 120), "RESUME" la chiude prima. Una sospensione scelta
+    //     dall'utente non la chiude mai un comando; l'utente puo' chiudere dal menu una sospensione dell'App.
+    void handleCommand(const QByteArray &command);
 
     // EN: from the settings dialog, before saving: applies the ports all together or none. false: nothing changed,
     //     message says why. The dialog saves the INI only after true, so the INI holds only ports that worked.
@@ -86,6 +96,8 @@ signals:
 
 private:
     void applySettings();
+    void applySuspended(bool suspended, const QString &logText);
+    void endCommandSuspend(const QString &logText);
     bool applyPorts(const QVector<quint16> &video, quint16 discovery, QString *failure);
     void checkCapture();
     QByteArray discoveryAnswer() const;
@@ -104,6 +116,8 @@ private:
     QStringList m_warnings;
     QString m_portWarning;   // EN: last port change not applied / IT: ultimo cambio di porte non applicato
     bool m_suspended = false;
+    bool m_commandSuspend = false;   // EN: suspended by "SUSPEND", ends by itself / IT: sospeso da "SUSPEND", finisce da solo
+    QTimer *m_resumeTimer = nullptr;
     bool m_running = false;
 };
 

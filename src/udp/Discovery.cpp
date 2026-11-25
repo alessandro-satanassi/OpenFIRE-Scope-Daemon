@@ -169,7 +169,14 @@ void Discovery::read()
     while (m_socket && m_socket->hasPendingDatagrams()) {
         const QNetworkDatagram request = m_socket->receiveDatagram(kMaxRequest);
         if (!request.isValid()) continue;
-        if (request.data().trimmed() != OF_CMD_WHOAMI) continue;   // EN: anything else is ignored / IT: tutto il resto si ignora
-        m_socket->writeDatagram(m_answer(), request.senderAddress(), quint16(request.senderPort()));
+        const QByteArray text = request.data().trimmed();
+        if (text == OF_CMD_WHOAMI) {
+            m_socket->writeDatagram(m_answer(), request.senderAddress(), quint16(request.senderPort()));
+            continue;
+        }
+        // EN: commands only from this PC (the socket is already bound to 127.0.0.1); anything else is ignored.
+        // IT: comandi solo da questo PC (il socket e' gia' legato a 127.0.0.1); tutto il resto si ignora.
+        const bool command = text == "RESUME" || text == "SUSPEND" || text.startsWith("SUSPEND;");
+        if (command && request.senderAddress().isLoopback() && m_command) m_command(text);
     }
 }
