@@ -20,6 +20,8 @@
 #include <QDir>
 
 #include "app/Log.h"
+#include "clip/ClipPlayer.h"
+#include "dongle/DongleManager.h"
 
 Daemon::Daemon(Settings *settings, QObject *parent)
     : QObject(parent)
@@ -28,7 +30,25 @@ Daemon::Daemon(Settings *settings, QObject *parent)
     m_slots.resize(Settings::Players);
     for (int i = 0; i < Settings::Players; ++i) m_slots[i].player = i + 1;
 
+    m_dongles = new DongleManager(m_settings, this);
+    connect(m_dongles, &DongleManager::changed, this, &Daemon::statusChanged);
     connect(m_settings, &Settings::changed, this, &Daemon::applySettings);
+}
+
+bool Daemon::setClipFile(const QString &path)
+{
+    auto *clip = new ClipPlayer(m_dongles, this);
+    QString error;
+    if (!clip->load(path, &error)) {
+        Log::error(tr("Test clip: %1").arg(error));
+        delete clip;
+        return false;
+    }
+    delete m_clip;
+    m_clip = clip;
+    Log::info(tr("Test clip %1: %2 frames at %3 fps, to every paired scope")
+                  .arg(QDir::toNativeSeparators(path)).arg(m_clip->frameCount()).arg(m_clip->fps()));
+    return true;
 }
 
 Daemon::~Daemon()
@@ -44,6 +64,8 @@ void Daemon::start()
     Log::info(tr("OpenFIRE Scope Daemon %1 started").arg(QStringLiteral(OFD_VERSION)));
     Log::info(tr("Settings: %1").arg(QDir::toNativeSeparators(m_settings->filePath())));
     if (m_settings->hasOverrides()) Log::info(tr("Command line values are used for this run only"));
+    m_dongles->start();
+    if (m_clip) m_clip->start();
     emit statusChanged();
 }
 
@@ -51,6 +73,8 @@ void Daemon::stop()
 {
     if (!m_running) return;
     m_running = false;
+    if (m_clip) m_clip->stop();
+    m_dongles->stop();
     Log::info(tr("Daemon stopped"));
 }
 
@@ -60,9 +84,22 @@ void Daemon::applySettings()
     emit statusChanged();
 }
 
+QVector<SlotStatus> Daemon::slotStatus() const
+{
+    QVector<SlotStatus> out = m_slots;
+    m_dongles->fillSlots(&out);
+    return out;
+}
+
+QVector<DeviceStatus> Daemon::devices() const
+{
+    return m_dongles->devices();
+}
+
 QStringList Daemon::warnings() const
 {
     QStringList out = m_warnings;
+    out << m_dongles->warnings();
     if (m_suspended) out.prepend(tr("Suspended: the serial ports are released"));
     return out;
 }
@@ -71,29 +108,31 @@ IconState Daemon::iconState() const
 {
     if (!warnings().isEmpty()) return IconState::Warning;
     bool paired = false;
-    for (const SlotStatus &s : m_slots)
+    for (const SlotStatus &s : slotStatus())
         if (s.scope != ScopeState::NoDongle) paired = true;
     if (paired) return IconState::Active;
-    return m_devices.isEmpty() ? IconState::Idle : IconState::Dongles;
+    return devices().isEmpty() ? IconState::Idle : IconState::Dongles;
 }
 
 QString Daemon::summary() const
 {
     QStringList parts;
-    for (const SlotStatus &s : m_slots) {
+    const QVector<SlotStatus> slotList = slotStatus();
+    for (const SlotStatus &s : slotList) {
         if (s.scope == ScopeState::NoDongle) continue;
         QString src;
         switch (s.source) {
         case SourceKind::Udp:       src = QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: src = tr("pause"); break;
         case SourceKind::Dxgi:      src = QStringLiteral("DXGI"); break;
+        case SourceKind::Clip:      src = tr("clip"); break;
         case SourceKind::None:      src = tr("no source"); break;
         }
         parts << tr("P%1 %2 %3 fps").arg(s.player).arg(src).arg(qRound(s.fpsOut));
     }
     QString text = QStringLiteral("OpenFIRE Scope Daemon");
     if (!parts.isEmpty()) text += QLatin1Char('\n') + parts.join(QStringLiteral(" · "));
-    else text += QLatin1Char('\n') + (m_devices.isEmpty() ? tr("No dongle connected") : tr("No scope paired"));
+    else text += QLatin1Char('\n') + (devices().isEmpty() ? tr("No dongle connected") : tr("No scope paired"));
     const QStringList warn = warnings();
     if (!warn.isEmpty()) text += QLatin1Char('\n') + warn.join(QLatin1Char('\n'));
     return text;
@@ -103,7 +142,8 @@ void Daemon::setSuspended(bool suspended)
 {
     if (m_suspended == suspended) return;
     m_suspended = suspended;
-    // EN: phase 2: close every port and stop the probes / start again. / IT: fase 2: chiude tutte le porte e ferma le prove / riparte.
+    // EN: closes every port and stops the probes / starts again. / IT: chiude tutte le porte e ferma le prove / riparte.
+    m_dongles->setSuspended(suspended);
     Log::info(suspended ? tr("Suspended: serial ports released") : tr("Resumed"));
     emit suspendedChanged(suspended);
     emit statusChanged();
@@ -126,6 +166,6 @@ void Daemon::setCaptureZoom(int zoom)
 
 void Daemon::retryPort(const QString &port)
 {
-    // EN: phase 2: forget the result of this port and probe it again. / IT: fase 2: dimentica l'esito di questa porta e la riprova.
-    Log::info(tr("Retry %1").arg(port));
+    // EN: forgets the result of this port and probes it again. / IT: dimentica l'esito di questa porta e la riprova.
+    m_dongles->retryPort(port);
 }

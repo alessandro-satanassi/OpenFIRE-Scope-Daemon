@@ -36,6 +36,17 @@ set(PROJECT_SOURCES
     src/app/Log.cpp
     src/app/SingleInstance.h
     src/app/SingleInstance.cpp
+    src/app/Status.h
+    src/serial/NativeSerial.h
+    src/dongle/EncodedFrame.h
+    src/dongle/UsbFrame.h
+    src/dongle/UsbFrame.cpp
+    src/dongle/DongleLink.h
+    src/dongle/DongleLink.cpp
+    src/dongle/DongleManager.h
+    src/dongle/DongleManager.cpp
+    src/clip/ClipPlayer.h
+    src/clip/ClipPlayer.cpp
     src/ui/TrayIcon.h
     src/ui/TrayIcon.cpp
     src/ui/MainWindow.h
@@ -47,8 +58,11 @@ set(PROJECT_SOURCES
     resources/resources.qrc
 )
 
+# EN: native code of one system only. / IT: codice nativo di un solo sistema.
 if(WIN32)
-    list(APPEND PROJECT_SOURCES resources/icon.rc)
+    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp)
+else()
+    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp)
 endif()
 
 qt_add_executable(OpenFIRE-Scope-Daemon MANUAL_FINALIZATION ${PROJECT_SOURCES})

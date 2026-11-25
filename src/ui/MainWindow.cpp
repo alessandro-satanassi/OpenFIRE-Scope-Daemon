@@ -287,6 +287,7 @@ void MainWindow::refreshStatus()
         case SourceKind::Udp:       source = QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: source = tr("pause"); break;
         case SourceKind::Dxgi:      source = QStringLiteral("DXGI"); break;
+        case SourceKind::Clip:      source = tr("clip"); break;
         }
         if (s.aimMissing) source += tr(" (no aim)");
 
@@ -331,6 +332,7 @@ void MainWindow::refreshDevices()
         case PortState::Probing:      state = tr("probing"); break;
         case PortState::Boot:         state = tr("starting"); break;
         case PortState::Free:         state = tr("free"); break;
+        case PortState::Duplicate:    state = tr("duplicate"); break;
         case PortState::NoAnswer:     state = tr("no answer"); break;
         case PortState::Discarded:    state = tr("discarded"); break;
         case PortState::Busy:         state = tr("busy"); break;
@@ -368,6 +370,7 @@ void MainWindow::refreshPreview()
         case SourceKind::Udp:       source = QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: source = tr("pause"); break;
         case SourceKind::Dxgi:      source = QStringLiteral("DXGI"); break;
+        case SourceKind::Clip:      source = tr("clip"); break;
         }
         m_preview[i]->setLabel(tr("P%1 · %2 · %3 fps").arg(s.player).arg(source).arg(qRound(s.fpsIn)));
         m_preview[i]->setPaused(s.source == SourceKind::UdpPaused);

@@ -2,9 +2,47 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="en_US">
 <context>
+    <name>ClipPlayer</name>
+    <message>
+        <location filename="../src/clip/ClipPlayer.cpp" line="+24"/>
+        <source>cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>%1 is not an OpenFIRE clip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>%1 is truncated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>%1: frame %2, slice %3 not valid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>%1 has no frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+44"/>
+        <location filename="../src/app/Daemon.cpp" line="+43"/>
+        <source>Test clip: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Test clip %1: %2 frames at %3 fps, to every paired scope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>OpenFIRE Scope Daemon %1 started</source>
         <translation type="unfinished"></translation>
     </message>
@@ -19,22 +57,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+12"/>
         <source>Daemon stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+25"/>
         <source>Suspended: the serial ports are released</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+23"/>
         <source>pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
+        <source>clip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>no source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -54,7 +97,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Suspended: serial ports released</source>
         <translation type="unfinished"></translation>
     </message>
@@ -78,9 +121,153 @@
         <source>Capture zoom %1x</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>DongleManager</name>
     <message>
-        <location line="+7"/>
-        <source>Retry %1</source>
+        <location filename="../src/dongle/DongleManager.cpp" line="+102"/>
+        <source>%1: tried again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>%1: dongle port connected (serial number %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>none</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>%1: disconnected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+87"/>
+        <source>%1: opened, WHOAMI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1: RTS/DTR could not be turned off (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>%1: busy, opened by another program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>%1: access denied (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>%1: cannot be opened (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>%1: no answer to WHOAMI, not a scope dongle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>%1: no answer to WHOAMI, trying again in %2 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>%1: dongle starting (channel search)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1: dongle free, channel %2, firmware %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>%1: USB bandwidth %2 KB/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>%1: bandwidth test stopped, %2 KB/s used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>%1: lost (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>%1: scope P%2 paired, channel %3, firmware %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>%1: P%2 is already used by %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>%1: scope P%2 takes the slot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>%1 and %2 are on the same channel %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>%1 and %2 are on the same channel %3, no free channel left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>%1: same channel as another dongle, RESCAN;SKIP=%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+83"/>
+        <source>P%1 already used by %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>USB %1 KB/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>no answer to WHOAMI: not a scope dongle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Two dongles with P%1: %2 is used, %3 is not</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>%1 is busy: another program has it open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1: access denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>To fix it, run once in a terminal:
+%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -233,12 +420,12 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+57"/>
+        <location line="+58"/>
         <source>Suspend (release the ports)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-55"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -264,22 +451,29 @@
     </message>
     <message>
         <location line="+1"/>
+        <location line="+53"/>
         <source>duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-49"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+81"/>
+        <location line="+83"/>
         <source>pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-78"/>
+        <location line="-81"/>
+        <location line="+83"/>
+        <source>clip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-81"/>
         <source> (no aim)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -309,7 +503,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>no answer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -344,7 +538,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>P%1 · %2 · %3 fps</source>
         <translation type="unfinished"></translation>
     </message>
@@ -565,7 +759,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../src/main.cpp" line="+163"/>
+        <location filename="../src/main.cpp" line="+166"/>
         <source>Video from the PC to the OpenFIRE scopes.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -590,7 +784,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+2"/>
+        <source>Test: sends this clip (.ofclip) in a loop to every paired scope.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>OpenFIRE Scope Daemon is already running.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -600,7 +799,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+13"/>
+        <source>The test clip cannot be used: see the log.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>No notification area: the window stays open</source>
         <translation type="unfinished"></translation>
     </message>

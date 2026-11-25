@@ -174,10 +174,13 @@ int main(int argc, char *argv[])
         QCoreApplication::translate("main", "No screen capture for this run."));
     const QCommandLineOption logOption(QStringLiteral("log"),
         QCoreApplication::translate("main", "Log file for this run."), QStringLiteral("FILE"));
+    const QCommandLineOption clipOption(QStringLiteral("play-clip"),
+        QCoreApplication::translate("main", "Test: sends this clip (.ofclip) in a loop to every paired scope."), QStringLiteral("FILE"));
     parser.addOption(headlessOption);
     parser.addOption(discoveryOption);
     parser.addOption(noCaptureOption);
     parser.addOption(logOption);
+    parser.addOption(clipOption);
     parser.process(*app);
 
     SingleInstance instance;
@@ -204,6 +207,11 @@ int main(int argc, char *argv[])
     Log::instance().setEcho(headless);
 
     Daemon daemon(&settings);
+    if (parser.isSet(clipOption) && !daemon.setClipFile(parser.value(clipOption))) {
+        ensureConsoleOutput();
+        std::fprintf(stderr, "%s\n", qPrintable(QCoreApplication::translate("main", "The test clip cannot be used: see the log.")));
+        if (headless) return 2;
+    }
 
     std::unique_ptr<MainWindow> window;
     std::unique_ptr<TrayIcon> tray;
