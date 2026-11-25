@@ -18,9 +18,12 @@
 #include "app/Daemon.h"
 
 #include <QDir>
+#include <QTimer>
 
 #include "OpenFIRE_Scope_Protocol.h"
 #include "app/Log.h"
+#include "capture/AimInput.h"
+#include "capture/ScreenCapture.h"
 #include "clip/ClipPlayer.h"
 #include "dongle/DongleManager.h"
 #include "udp/Discovery.h"
@@ -47,7 +50,19 @@ Daemon::Daemon(Settings *settings, QObject *parent)
     m_dongles->setSlotLinkHandler([this](int player, DongleLink *link) {
         if (player < 1 || player > Settings::Players) return;
         m_encoders[player - 1]->setLink(m_clip ? nullptr : link);
+        // EN: the capture serves only slots with a paired scope, never with the test clip.
+        // IT: la cattura serve solo slot con un mirino abbinato, mai con la clip di prova.
+        m_udp->slot(player)->setCaptureAllowed(link && !m_clip);
     });
+
+    // EN: screen capture and aim points (Windows only). / IT: cattura dello schermo e punti di mira (solo Windows).
+    SlotInput *inputs[Settings::Players];
+    for (int p = 1; p <= Settings::Players; ++p) inputs[p - 1] = m_udp->slot(p);
+    m_aim = new AimInput(this);
+    m_capture = new ScreenCapture(inputs, m_aim, this);
+    m_captureTimer = new QTimer(this);
+    m_captureTimer->setInterval(500);
+    connect(m_captureTimer, &QTimer::timeout, this, &Daemon::checkCapture);
     connect(m_settings, &Settings::changed, this, &Daemon::applySettings);
 }
 
@@ -84,6 +99,11 @@ void Daemon::start()
     m_discovery->start();
     m_dongles->start();
     if (m_clip) m_clip->start();
+    if (ScreenCapture::supported()) {
+        m_aim->start();
+        m_capture->start();
+        m_captureTimer->start();
+    }
     emit statusChanged();
 }
 
@@ -92,6 +112,9 @@ void Daemon::stop()
     if (!m_running) return;
     m_running = false;
     if (m_clip) m_clip->stop();
+    m_captureTimer->stop();
+    m_capture->stopCapture();
+    m_aim->stopInput();
     m_dongles->stop();
     m_discovery->stop();
     m_udp->stop();
@@ -108,6 +131,8 @@ void Daemon::applySettings()
                                             : ep == ThreadPriority::BelowNormal ? QThread::LowPriority
                                                                                  : QThread::NormalPriority;
     for (SlotEncoder *e : m_encoders) e->setConfig(m_settings->encoderConfig(), encoderPriority);
+    m_capture->configure(m_settings->captureEnabled(), m_settings->captureMonitor(), m_settings->captureZoom());
+    m_aim->setMap(m_settings->lightgunMap());
     // EN: normally nothing changes here: the dialog has already applied the ports before saving them.
     // IT: di norma qui non cambia nulla: la finestra ha gia' applicato le porte prima di salvarle.
     QVector<quint16> video;
@@ -163,8 +188,11 @@ QVector<SlotStatus> Daemon::slotStatus() const
 {
     QVector<SlotStatus> out = m_slots;
     m_udp->fillSlots(&out);
-    for (SlotStatus &s : out)
-        if (s.player >= 1 && s.player <= Settings::Players) s.encodeMs = m_encoders[s.player - 1]->encodeMs();
+    for (SlotStatus &s : out) {
+        if (s.player < 1 || s.player > Settings::Players) continue;
+        s.encodeMs = m_encoders[s.player - 1]->encodeMs();
+        s.aimMissing = s.source == SourceKind::Dxgi && m_capture->aimMissing(s.player);
+    }
     m_dongles->fillSlots(&out);   // EN: after the UDP: the test clip wins as source / IT: dopo l'UDP: la clip di prova vince come sorgente
     return out;
 }
@@ -181,6 +209,8 @@ QStringList Daemon::warnings() const
     out << m_dongles->warnings();
     out << m_discovery->warnings();
     out << m_udp->warnings();
+    for (int p = 1; p <= Settings::Players; ++p)
+        if (m_aim->duplicate(p)) out << tr("P%1: two lightguns with the same VID:PID, only the first one aims").arg(p);
     if (m_suspended) out.prepend(tr("Suspended: the serial ports are released"));
     return out;
 }
@@ -249,6 +279,20 @@ void Daemon::retryPort(const QString &port)
 {
     // EN: forgets the result of this port and probes it again. / IT: dimentica l'esito di questa porta e la riprova.
     m_dongles->retryPort(port);
+}
+
+void Daemon::checkCapture()
+{
+    // EN: these flags change in the capture threads: the icon and the window are told here.
+    // IT: questi indicatori cambiano nei thread della cattura: l'icona e la finestra lo sanno da qui.
+    quint32 flags = 0;
+    for (int p = 1; p <= Settings::Players; ++p) {
+        if (m_capture->aimMissing(p)) flags |= 1u << (p - 1);
+        if (m_aim->duplicate(p)) flags |= 1u << (p + 3);
+    }
+    if (flags == m_captureFlags) return;
+    m_captureFlags = flags;
+    emit statusChanged();
 }
 
 InputFramePtr Daemon::latestFrame(int player) const

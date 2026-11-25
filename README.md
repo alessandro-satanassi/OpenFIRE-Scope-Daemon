@@ -8,7 +8,7 @@
 
 The daemon runs in the notification area (the menu bar on macOS). It receives the video of each player from the games over UDP on 127.0.0.1 (or, on Windows, from a screen capture), encodes it and sends it through the USB dongles to the round display of the OpenFIRE scopes. Up to 4 players.
 
-> **Status: in development.** Phase 4: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview, and the video to the scopes: encoder, bandwidth control, pause and resend. Screen capture arrives in the next phase.
+> **Status: in development.** Phase 5: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview, the video to the scopes (encoder, bandwidth control, pause and resend) and, on Windows, the screen capture around the aim point of each lightgun (DXGI and Raw Input).
 
 ## Systems
  - Windows 10 (1809) or later, 64 bit.
@@ -61,7 +61,7 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
 
 Il demone gira nell'area di notifica (nella barra dei menu su macOS). Riceve il video di ogni giocatore dai giochi via UDP su 127.0.0.1 (oppure, su Windows, da una cattura dello schermo), lo codifica e lo manda tramite i dongle USB al display rotondo dei mirini OpenFIRE. Fino a 4 giocatori.
 
-> **Stato: in sviluppo.** Fase 4: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima e il video ai mirini: encoder, controllo di banda, pausa e reinvio. La cattura dello schermo arriva nella fase successiva.
+> **Stato: in sviluppo.** Fase 5: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima, il video ai mirini (encoder, controllo di banda, pausa e reinvio) e, su Windows, la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input).
 
 ## Sistemi
  - Windows 10 (1809) o successivo, 64 bit.

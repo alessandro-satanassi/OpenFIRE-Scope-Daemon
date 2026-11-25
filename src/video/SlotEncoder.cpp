@@ -96,6 +96,7 @@ void SlotEncoder::run()
     quint32 generation = s_generation.fetch_add(1);
     bool first = true;
     SourceKind state = SourceKind::None;
+    quint32 stateEpoch = 0;   // EN: interruptions of the capture seen with the state / IT: interruzioni della cattura viste con lo stato
     quint64 lastSeq = 0;
     int64_t nextAt = 0;
     int64_t statsAt = HiResTimer::nowUs() + kStatsEveryUs;
@@ -104,11 +105,19 @@ void SlotEncoder::run()
 
     while (!m_stop.load()) {
         int64_t now = HiResTimer::nowUs();
-        const SourceKind kind = m_input->udpSource(monotonicMs());
-        if (first || kind != state) {
+        // EN: the counter before the source: an interruption in between is seen at the next round.
+        // IT: il contatore prima della sorgente: un'interruzione nel mezzo si vede al giro successivo.
+        const quint32 epoch = m_input->captureEpoch();
+        const SourceKind kind = m_input->source(monotonicMs());
+        // EN: DXGI closed and opened again between two reads is also a new generation: the writer drops the
+        //     copy for the resend and the frame waiting.
+        // IT: anche DXGI chiusa e riaperta tra due letture e' una generazione nuova: lo scrittore scarta la
+        //     copia per il reinvio e il frame in attesa.
+        if (first || kind != state || (kind == SourceKind::Dxgi && epoch != stateEpoch)) {
             if (!first) generation = s_generation.fetch_add(1);
             first = false;
             state = kind;
+            stateEpoch = epoch;
             link->setSource(linkSource(state), generation);
         }
 
@@ -129,7 +138,9 @@ void SlotEncoder::run()
             continue;
         }
         const InputFramePtr frame = m_input->latest();
-        if (!frame || frame->seq == lastSeq) {
+        // EN: only a frame of the current source: after a switch the latest frame can still be of the old one.
+        // IT: solo un frame della sorgente attuale: dopo un cambio l'ultimo frame puo' essere ancora della vecchia.
+        if (!frame || frame->seq == lastSeq || frame->source != state) {
             timer.sleepUntil(now + kPollUs);
             continue;
         }
@@ -148,7 +159,8 @@ void SlotEncoder::run()
         //     the next round starts the new generation.
         // IT: la sorgente puo' essere cambiata durante la codifica (pausa, fine del gioco): il frame si scarta e il
         //     giro successivo avvia la nuova generazione.
-        if (r->ok && m_input->udpSource(monotonicMs()) == state) {
+        if (r->ok && m_input->source(monotonicMs()) == state
+            && (state != SourceKind::Dxgi || m_input->captureEpoch() == stateEpoch)) {
             auto out = std::make_shared<EncodedFrame>();
             for (int i = 0; i < OF_SCOPE_STRIPS; ++i) {
                 out->slices[i].q = r->sliceQ[i];

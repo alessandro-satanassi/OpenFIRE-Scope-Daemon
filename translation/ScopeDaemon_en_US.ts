@@ -2,6 +2,30 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US" sourcelanguage="en_US">
 <context>
+    <name>AimInput</name>
+    <message>
+        <location filename="../src/capture/AimInput_win.cpp" line="+163"/>
+        <source>P%1: lightgun %2, absolute positions on the virtual desktop (flags %3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>P%1: lightgun %2, absolute positions on the primary monitor (flags %3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+98"/>
+        <location line="+6"/>
+        <source>Aim point: window not created (error %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Aim point: Raw Input not available (error %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ClipPlayer</name>
     <message>
         <location filename="../src/clip/ClipPlayer.cpp" line="+24"/>
@@ -32,7 +56,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+59"/>
+        <location filename="../src/app/Daemon.cpp" line="+74"/>
         <source>Test clip: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,18 +81,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+24"/>
         <source>Daemon stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+23"/>
         <location line="+36"/>
         <source>The new ports were not applied: %1. The previous ports stay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+33"/>
+        <source>P%1: two lightguns with the same VID:PID, only the first one aims</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Suspended: the serial ports are released</source>
         <translation type="unfinished"></translation>
     </message>
@@ -610,7 +639,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+49"/>
+        <location line="+50"/>
         <source>Log copied (%n event(s))</source>
         <translation>
             <numerusform>Log copied (%n event)</numerusform>
@@ -642,9 +671,62 @@
     </message>
 </context>
 <context>
+    <name>ScreenCapture</name>
+    <message>
+        <location filename="../src/capture/ScreenCapture_win.cpp" line="+122"/>
+        <source>DXGI not available (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>no monitor found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>monitor no longer available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Direct3D 11 device not created (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>duplication of %1 not available (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>desktop format %1 not supported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+164"/>
+        <source>Screen capture lost (%1), trying again every 500 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Screen capture not available: %1. Trying again every 500 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Game monitor %1 not connected: the primary monitor is captured</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Screen capture of %1 (%2×%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/SettingsDialog.cpp" line="+64"/>
+        <location filename="../src/ui/SettingsDialog.cpp" line="+63"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -694,7 +776,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+3"/>
+        <source>%1, primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>%1 (not connected)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -867,7 +954,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../src/main.cpp" line="+166"/>
+        <location filename="../src/main.cpp" line="+182"/>
         <source>Video from the PC to the OpenFIRE scopes.</source>
         <translation type="unfinished"></translation>
     </message>

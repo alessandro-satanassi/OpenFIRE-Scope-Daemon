@@ -2,6 +2,30 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="it_IT" sourcelanguage="en_US">
 <context>
+    <name>AimInput</name>
+    <message>
+        <location filename="../src/capture/AimInput_win.cpp" line="+163"/>
+        <source>P%1: lightgun %2, absolute positions on the virtual desktop (flags %3)</source>
+        <translation>P%1: lightgun %2, posizioni assolute sul desktop virtuale (flag %3)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>P%1: lightgun %2, absolute positions on the primary monitor (flags %3)</source>
+        <translation>P%1: lightgun %2, posizioni assolute sul monitor principale (flag %3)</translation>
+    </message>
+    <message>
+        <location line="+98"/>
+        <location line="+6"/>
+        <source>Aim point: window not created (error %1)</source>
+        <translation>Punto di mira: finestra non creata (errore %1)</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Aim point: Raw Input not available (error %1)</source>
+        <translation>Punto di mira: Raw Input non disponibile (errore %1)</translation>
+    </message>
+</context>
+<context>
     <name>ClipPlayer</name>
     <message>
         <location filename="../src/clip/ClipPlayer.cpp" line="+24"/>
@@ -32,7 +56,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+59"/>
+        <location filename="../src/app/Daemon.cpp" line="+74"/>
         <source>Test clip: %1</source>
         <translation>Clip di prova: %1</translation>
     </message>
@@ -57,18 +81,23 @@
         <translation>I valori della riga di comando valgono solo per questo avvio</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+24"/>
         <source>Daemon stopped</source>
         <translation>Demone fermato</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+23"/>
         <location line="+36"/>
         <source>The new ports were not applied: %1. The previous ports stay.</source>
         <translation>Le nuove porte non sono state applicate: %1. Restano le porte precedenti.</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+33"/>
+        <source>P%1: two lightguns with the same VID:PID, only the first one aims</source>
+        <translation>P%1: due lightgun con lo stesso VID:PID, mira solo la prima</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Suspended: the serial ports are released</source>
         <translation>Sospeso: le porte seriali sono rilasciate</translation>
     </message>
@@ -611,7 +640,7 @@
         <translation>P%1 · %2 · %3 fps</translation>
     </message>
     <message numerus="yes">
-        <location line="+49"/>
+        <location line="+50"/>
         <source>Log copied (%n event(s))</source>
         <translation>
             <numerusform>Registro copiato (%n evento)</numerusform>
@@ -643,9 +672,62 @@
     </message>
 </context>
 <context>
+    <name>ScreenCapture</name>
+    <message>
+        <location filename="../src/capture/ScreenCapture_win.cpp" line="+122"/>
+        <source>DXGI not available (%1)</source>
+        <translation>DXGI non disponibile (%1)</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>no monitor found</source>
+        <translation>nessun monitor trovato</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>monitor no longer available</source>
+        <translation>monitor non più disponibile</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Direct3D 11 device not created (%1)</source>
+        <translation>dispositivo Direct3D 11 non creato (%1)</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>duplication of %1 not available (%2)</source>
+        <translation>duplicazione di %1 non disponibile (%2)</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>desktop format %1 not supported</source>
+        <translation>formato del desktop %1 non supportato</translation>
+    </message>
+    <message>
+        <location line="+164"/>
+        <source>Screen capture lost (%1), trying again every 500 ms</source>
+        <translation>Cattura dello schermo persa (%1), si riprova ogni 500 ms</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Screen capture not available: %1. Trying again every 500 ms</source>
+        <translation>Cattura dello schermo non disponibile: %1. Si riprova ogni 500 ms</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Game monitor %1 not connected: the primary monitor is captured</source>
+        <translation>Monitor del gioco %1 non collegato: si cattura il monitor principale</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Screen capture of %1 (%2×%3)</source>
+        <translation>Cattura dello schermo di %1 (%2×%3)</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/SettingsDialog.cpp" line="+64"/>
+        <location filename="../src/ui/SettingsDialog.cpp" line="+63"/>
         <source>Settings</source>
         <translation>Impostazioni</translation>
     </message>
@@ -695,7 +777,12 @@
         <translation>Monitor principale</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+3"/>
+        <source>%1, primary</source>
+        <translation>%1, principale</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>%1 (not connected)</source>
         <translation>%1 (non collegato)</translation>
     </message>
@@ -869,7 +956,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../src/main.cpp" line="+166"/>
+        <location filename="../src/main.cpp" line="+182"/>
         <source>Video from the PC to the OpenFIRE scopes.</source>
         <translation>Video dal PC ai mirini OpenFIRE.</translation>
     </message>

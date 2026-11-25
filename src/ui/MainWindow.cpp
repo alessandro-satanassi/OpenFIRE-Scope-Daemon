@@ -387,10 +387,11 @@ void MainWindow::refreshPreview()
         m_preview[i]->setLabel(tr("P%1 · %2 · %3 fps").arg(s.player).arg(source).arg(qRound(s.fpsIn)));
         m_preview[i]->setPaused(s.source == SourceKind::UdpPaused);
 
-        // EN: an image only with a live UDP source; otherwise "No frame" or "Paused".
-        // IT: un'immagine solo con una sorgente UDP viva; altrimenti "Nessun frame" o "In pausa".
-        const bool show = m_showPreview->isChecked() && s.source == SourceKind::Udp;
-        const InputFramePtr frame = show ? m_daemon->latestFrame(s.player) : InputFramePtr();
+        // EN: an image only with a live source (UDP or DXGI) and a frame of that source; otherwise "No frame" or "Paused".
+        // IT: un'immagine solo con una sorgente viva (UDP o DXGI) e un frame di quella sorgente; altrimenti "Nessun frame" o "In pausa".
+        const bool show = m_showPreview->isChecked() && (s.source == SourceKind::Udp || s.source == SourceKind::Dxgi);
+        InputFramePtr frame = show ? m_daemon->latestFrame(s.player) : InputFramePtr();
+        if (frame && frame->source != s.source) frame.reset();
         if (!frame) {
             if (m_previewSeq[i] != 0) m_preview[i]->setFrame(QImage());
             m_previewSeq[i] = 0;

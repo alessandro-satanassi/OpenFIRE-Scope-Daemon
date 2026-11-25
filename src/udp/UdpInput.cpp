@@ -212,7 +212,7 @@ void UdpInput::tick()
             open(s);
             any = true;
         }
-        const SourceKind src = s.input->udpSource(now);
+        const SourceKind src = s.input->source(now);
         if (src != s.source) {
             s.source = src;
             any = true;

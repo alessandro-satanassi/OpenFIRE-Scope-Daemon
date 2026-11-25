@@ -27,19 +27,22 @@
 #include "app/Status.h"
 #include "udp/SlotInput.h"
 
+class AimInput;
 class ClipPlayer;
 class DongleLink;
 class SlotEncoder;
 class Discovery;
+class QTimer;
+class ScreenCapture;
 class DongleManager;
 class UdpInput;
 
 // EN: The daemon core: owns every part and the state the window shows. It lives in the main thread and
-//     never uses widgets, so it also runs headless. Phase 3: dongles, test clip, UDP from the games,
-//     discovery and preview; encoder and capture arrive in the next phases.
+//     never uses widgets, so it also runs headless: dongles, test clip, UDP from the games, discovery,
+//     preview, encoders and, on Windows, the screen capture with the aim points.
 // IT: Il cuore del demone: possiede tutte le parti e lo stato che la finestra mostra. Vive nel thread
-//     principale e non usa mai i widget, quindi funziona anche senza finestra. Fase 3: dongle, clip di
-//     prova, UDP dai giochi, discovery e anteprima; encoder e cattura arrivano nelle fasi successive.
+//     principale e non usa mai i widget, quindi funziona anche senza finestra: dongle, clip di prova, UDP
+//     dai giochi, discovery, anteprima, encoder e, su Windows, la cattura dello schermo con i punti di mira.
 class Daemon : public QObject
 {
     Q_OBJECT
@@ -84,6 +87,7 @@ signals:
 private:
     void applySettings();
     bool applyPorts(const QVector<quint16> &video, quint16 discovery, QString *failure);
+    void checkCapture();
     QByteArray discoveryAnswer() const;
 
     Settings *m_settings = nullptr;
@@ -93,6 +97,10 @@ private:
     UdpInput *m_udp = nullptr;
     Discovery *m_discovery = nullptr;
     SlotEncoder *m_encoders[Settings::Players] = {};
+    AimInput *m_aim = nullptr;
+    ScreenCapture *m_capture = nullptr;
+    QTimer *m_captureTimer = nullptr;
+    quint32 m_captureFlags = 0;   // EN: aim missing and duplicate lightguns, last seen / IT: mira mancante e lightgun doppie, ultime viste
     QStringList m_warnings;
     QString m_portWarning;   // EN: last port change not applied / IT: ultimo cambio di porte non applicato
     bool m_suspended = false;

@@ -36,11 +36,56 @@ void SlotInput::publish(const std::shared_ptr<InputFrame> &frame, SourceKind sou
     frame->timeMs = now;
     {
         QMutexLocker lock(&m_mutex);
+        // EN: under the lock, so that a capture frame published right after sees the UDP source.
+        // IT: sotto il lock, cosi' un frame della cattura pubblicato subito dopo vede la sorgente UDP.
+        if (source == SourceKind::Udp) m_lastEvent.store(now << 1);
         frame->seq = ++m_seq;
         m_latest = frame;
     }
     ++framesComplete;
-    if (source == SourceKind::Udp) m_lastEvent.store(now << 1);
+}
+
+void SlotInput::setCaptureAllowed(bool on)
+{
+    m_captureAllowed.store(on);
+    if (!on) dropCaptureFrame();
+}
+
+void SlotInput::setCaptureLive(bool on)
+{
+    m_captureLive.store(on);
+    if (!on) dropCaptureFrame();
+}
+
+void SlotInput::dropCaptureFrame()
+{
+    // EN: capture lost, monitor changed, capture off or scope no longer paired: the latest DXGI frame is old and
+    //     must not leave when the capture comes back; the slot starts again from the first new crop.
+    // IT: cattura persa, monitor cambiato, cattura spenta o mirino non piu' abbinato: l'ultimo frame DXGI e'
+    //     vecchio e non deve partire quando la cattura torna; lo slot riparte dal primo ritaglio nuovo.
+    QMutexLocker lock(&m_mutex);
+    ++m_captureEpoch;
+    if (m_latest && m_latest->source == SourceKind::Dxgi) m_latest.reset();
+}
+
+bool SlotInput::captureWanted(qint64 nowMs) const
+{
+    return m_captureAllowed.load() && udpSource(nowMs) == SourceKind::None;
+}
+
+bool SlotInput::publishCapture(const std::shared_ptr<InputFrame> &frame)
+{
+    const qint64 now = monotonicMs();
+    frame->source = SourceKind::Dxgi;
+    frame->timeMs = now;
+    {
+        QMutexLocker lock(&m_mutex);
+        if (source(now) != SourceKind::Dxgi) return false;
+        frame->seq = ++m_seq;
+        m_latest = frame;
+    }
+    ++framesComplete;
+    return true;
 }
 
 void SlotInput::notePresence()
@@ -61,4 +106,11 @@ SourceKind SlotInput::udpSource(qint64 nowMs) const
     const qint64 event = m_lastEvent.load();
     if (event < 0 || nowMs - (event >> 1) >= SourceTimeoutMs) return SourceKind::None;
     return (event & 1) ? SourceKind::UdpPaused : SourceKind::Udp;
+}
+
+SourceKind SlotInput::source(qint64 nowMs) const
+{
+    const SourceKind udp = udpSource(nowMs);
+    if (udp != SourceKind::None) return udp;
+    return (m_captureAllowed.load() && m_captureLive.load()) ? SourceKind::Dxgi : SourceKind::None;
 }

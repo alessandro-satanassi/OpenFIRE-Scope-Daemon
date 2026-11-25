@@ -23,7 +23,6 @@
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -32,7 +31,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
-#include <QScreen>
 #include <QSet>
 #include <QSpinBox>
 #include <QTabWidget>
@@ -40,6 +38,7 @@
 #include <QVBoxLayout>
 
 #include "OpenFIRE_Scope_Protocol.h"
+#include "capture/ScreenCapture.h"
 
 namespace {
 QSpinBox *newPortBox(quint16 value)
@@ -117,11 +116,12 @@ QWidget *SettingsDialog::buildCaptureTab()
 
     m_monitor = new QComboBox();
     m_monitor->addItem(tr("Primary monitor"), QString());
-    for (QScreen *screen : QGuiApplication::screens())
-        m_monitor->addItem(screen->name(), screen->name());
+    // EN: Windows name of the monitor (\\.\DISPLAY1), the one DXGI uses. / IT: nome di Windows del monitor (\\.\DISPLAY1), quello che usa DXGI.
+    for (const MonitorInfo &m : ScreenCapture::monitors())
+        m_monitor->addItem(m.primary ? tr("%1, primary").arg(m.label) : m.label, m.device);
     const QString monitor = m_settings->captureMonitor();
     if (!monitor.isEmpty()) {
-        int index = m_monitor->findData(monitor);
+        int index = m_monitor->findData(monitor, Qt::UserRole, Qt::MatchFixedString);
         if (index < 0) {
             // EN: a monitor not connected now stays selected. / IT: un monitor ora non collegato resta selezionato.
             m_monitor->addItem(tr("%1 (not connected)").arg(monitor), monitor);

@@ -66,6 +66,21 @@ BOOL WINAPI onConsoleCtrl(DWORD type)
 #endif
 
 #ifdef Q_OS_WIN
+// EN: without a window Qt does not declare the DPI awareness: the aim points (Raw Input, GetCursorPos) and the
+//     screen must be in real pixels also with the Windows zoom at 125% or 150%, and DuplicateOutput1 needs it.
+//     Through GetProcAddress, so it does not depend on the version of the headers.
+// IT: senza finestra Qt non dichiara la consapevolezza DPI: i punti di mira (Raw Input, GetCursorPos) e lo
+//     schermo devono essere in pixel reali anche con lo zoom di Windows al 125% o al 150%, e DuplicateOutput1
+//     ne ha bisogno. Tramite GetProcAddress, cosi' non dipende dalla versione delle intestazioni.
+void setPerMonitorDpiAware()
+{
+    using SetContext = BOOL(WINAPI *)(HANDLE);
+    const HMODULE user32 = GetModuleHandleW(L"user32.dll");
+    if (!user32) return;
+    const auto set = reinterpret_cast<SetContext>(reinterpret_cast<void *>(GetProcAddress(user32, "SetProcessDpiAwarenessContext")));
+    if (set) set(reinterpret_cast<HANDLE>(INT_PTR(-4)));   // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+}
+
 bool hasStdHandle(DWORD which)
 {
     const HANDLE h = GetStdHandle(which);
@@ -148,6 +163,7 @@ int main(int argc, char *argv[])
         ensureConsoleOutput();
 #ifdef Q_OS_WIN
         SetConsoleCtrlHandler(onConsoleCtrl, TRUE);
+        if (headless) setPerMonitorDpiAware();
 #endif
         app = std::make_unique<QCoreApplication>(argc, argv);
     } else {
