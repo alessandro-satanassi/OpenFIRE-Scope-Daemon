@@ -1,0 +1,67 @@
+name: CMake - Windows 10+ Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type: [Debug, Release]
+        win_arch: [win64_msvc2022_64, win64_mingw]
+        include:
+          - win_arch: win64_mingw
+            qt_tools: tools_mingw1310
+            cmake_gen: "MinGW Makefiles"
+            pretty: "Windows Artifact (MinGW)"
+          - win_arch: win64_msvc2022_64
+            cmake_gen: ""
+            pretty: "Windows Artifact (MSVC)"
+        exclude:
+          - win_arch: win64_msvc2022_64
+            build_type: Debug
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Get short SHA
+      id: get-short-sha
+      run: echo "id=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
+
+    - name: Install Qt6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.3'
+        arch: '${{ matrix.win_arch }}'
+        modules: 'qtserialport'
+        tools: '${{ matrix.qt_tools }}'
+        archives: 'qtbase qttranslations qttools qtsvg icu'
+        cache: true
+
+    - name: Configure CMake
+      run: >
+        cmake -B "${{ github.workspace }}/build"
+        -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}"
+        -DOFD_GITHASH="${{steps.get-short-sha.outputs.id}}"
+        ${{ matrix.cmake_gen && format('-G "{0}"', matrix.cmake_gen) || '' }}
+        -S "${{ github.workspace }}"
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} --parallel
+
+    - name: Deploy Windows App & Libraries
+      # EN: QtNetwork stays: QLocalServer (single instance) is in it. / IT: QtNetwork resta: QLocalServer (istanza unica) e' li'.
+      run: |
+        cmake --install "${{ github.workspace }}/build" --config ${{ matrix.build_type }} --prefix "${{ github.workspace }}/build/out" --strip
+        windeployqt "${{ github.workspace }}/build/out/bin/OpenFIRE-Scope-Daemon.exe" --no-system-d3d-compiler --no-opengl-sw --exclude-plugins qnetworklistmanager,qtuiotouchplugin,qsvgicon,qcertonlybackend,qchannelbackend
+        mv "${{ github.workspace }}/build/out/bin" "${{ github.workspace }}/build/out/OpenFIRE Scope Daemon"
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: OpenFIRE-Scope-Daemon-${{ matrix.pretty }}-Qt6-${{ matrix.build_type }}
+        path: build/out

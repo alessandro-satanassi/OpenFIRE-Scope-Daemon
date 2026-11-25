@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=OpenFIRE Scope Daemon
+Exec=OpenFIRE-Scope-Daemon
+GenericName=Video from the PC to the OpenFIRE scopes
+Icon=org.TeamOpenFIRE.ScopeDaemon
+NoDisplay=false
+StartupNotify=false
+Terminal=false
+Type=Application
+Categories=Utility;

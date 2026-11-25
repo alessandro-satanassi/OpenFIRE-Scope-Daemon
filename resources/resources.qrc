@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="openfire.png">openfire.png</file>
+        <file alias="openfire.svg">openfire.svg</file>
+    </qresource>
+</RCC>
