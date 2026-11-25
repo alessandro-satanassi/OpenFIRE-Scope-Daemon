@@ -32,7 +32,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+43"/>
+        <location filename="../src/app/Daemon.cpp" line="+50"/>
         <source>Test clip: %1</source>
         <translation>Clip di prova: %1</translation>
     </message>
@@ -57,12 +57,18 @@
         <translation>I valori della riga di comando valgono solo per questo avvio</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+16"/>
         <source>Daemon stopped</source>
         <translation>Demone fermato</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+14"/>
+        <location line="+36"/>
+        <source>The new ports were not applied: %1. The previous ports stay.</source>
+        <translation>Le nuove porte non sono state applicate: %1. Restano le porte precedenti.</translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Suspended: the serial ports are released</source>
         <translation>Sospeso: le porte seriali sono rilasciate</translation>
     </message>
@@ -121,15 +127,32 @@
         <source>Capture zoom %1x</source>
         <translation>Zoom della cattura %1x</translation>
     </message>
+</context>
+<context>
+    <name>Discovery</name>
     <message>
-        <source>Retry %1</source>
-        <translation>Riprova %1</translation>
+        <location filename="../src/udp/Discovery.cpp" line="+66"/>
+        <location line="+28"/>
+        <location line="+38"/>
+        <source>Discovery on UDP port %1</source>
+        <translation>Discovery sulla porta UDP %1</translation>
+    </message>
+    <message>
+        <location line="-64"/>
+        <location line="+82"/>
+        <source>Discovery port %1 is not available (%2): the games cannot find the scopes</source>
+        <translation>La porta di discovery %1 non è disponibile (%2): i giochi non trovano i mirini</translation>
+    </message>
+    <message>
+        <location line="-31"/>
+        <source>discovery port %1 is not available (%2)</source>
+        <translation>la porta di discovery %1 non è disponibile (%2)</translation>
     </message>
 </context>
 <context>
     <name>DongleManager</name>
     <message>
-        <location filename="../src/dongle/DongleManager.cpp" line="+102"/>
+        <location filename="../src/dongle/DongleManager.cpp" line="+104"/>
         <source>%1: tried again</source>
         <translation>%1: nuovo tentativo</translation>
     </message>
@@ -313,18 +336,18 @@
     </message>
     <message>
         <location line="+0"/>
-        <location line="+20"/>
+        <location line="+23"/>
         <source>CH</source>
         <translation>CH</translation>
     </message>
     <message>
-        <location line="-20"/>
-        <location line="+20"/>
+        <location line="-23"/>
+        <location line="+23"/>
         <source>FW</source>
         <translation>FW</translation>
     </message>
     <message>
-        <location line="-20"/>
+        <location line="-23"/>
         <source>UDP port</source>
         <translation>Porta UDP</translation>
     </message>
@@ -360,6 +383,16 @@
     </message>
     <message>
         <location line="+0"/>
+        <source>Partial/s</source>
+        <translation>Parziali/s</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Invalid/s</source>
+        <translation>Non validi/s</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>DROP/s</source>
         <translation>DROP/s</translation>
     </message>
@@ -367,6 +400,16 @@
         <location line="+0"/>
         <source>QFULL/s</source>
         <translation>QFULL/s</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UDP frames replaced before all 15 strips arrived</source>
+        <translation>Frame UDP sostituiti prima che arrivassero tutte le 15 fasce</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UDP packets dropped by the checks (format, player, length)</source>
+        <translation>Pacchetti UDP scartati dai controlli (formato, giocatore, lunghezza)</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -409,7 +452,7 @@
         <translation>Scurisce i pixel che il mirino non mostra</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+51"/>
         <source>Copy</source>
         <translation>Copia</translation>
     </message>
@@ -425,12 +468,12 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+58"/>
+        <location line="+60"/>
         <source>Suspend (release the ports)</source>
         <translation>Sospendi (rilascia le porte)</translation>
     </message>
     <message>
-        <location line="-55"/>
+        <location line="-57"/>
         <source>&amp;Quit</source>
         <translation>&amp;Esci</translation>
     </message>
@@ -456,34 +499,34 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+53"/>
+        <location line="+55"/>
         <source>duplicate</source>
         <translation>doppio</translation>
     </message>
     <message>
-        <location line="-49"/>
+        <location line="-51"/>
         <source>none</source>
         <translation>nessuna</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+83"/>
+        <location line="+86"/>
         <source>pause</source>
         <translation>pausa</translation>
     </message>
     <message>
-        <location line="-81"/>
-        <location line="+83"/>
+        <location line="-84"/>
+        <location line="+86"/>
         <source>clip</source>
         <translation>clip</translation>
     </message>
     <message>
-        <location line="-81"/>
+        <location line="-84"/>
         <source> (no aim)</source>
         <translation> (senza mira)</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+25"/>
         <source>Resume</source>
         <translation>Riprendi</translation>
     </message>
@@ -538,7 +581,7 @@
         <translation>Riprova</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+19"/>
         <source>no source</source>
         <translation>nessuna sorgente</translation>
     </message>
@@ -548,7 +591,7 @@
         <translation>P%1 · %2 · %3 fps</translation>
     </message>
     <message numerus="yes">
-        <location line="+37"/>
+        <location line="+49"/>
         <source>Log copied (%n event(s))</source>
         <translation>
             <numerusform>Registro copiato (%n evento)</numerusform>
@@ -556,7 +599,7 @@
         </translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+21"/>
         <source>About</source>
         <translation>Informazioni</translation>
     </message>
@@ -582,7 +625,7 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/SettingsDialog.cpp" line="+63"/>
+        <location filename="../src/ui/SettingsDialog.cpp" line="+64"/>
         <source>Settings</source>
         <translation>Impostazioni</translation>
     </message>
@@ -609,7 +652,7 @@
     <message>
         <location line="+11"/>
         <source>Preferred UDP port of each player. If it is taken, the daemon uses another one and shows it in the window.</source>
-        <translation>Porta UDP preferita di ogni giocatore. Se è occupata, il demone ne usa un'altra e la mostra nella finestra.</translation>
+        <translation>Porta UDP preferita di ogni giocatore. Se è occupata, il demone ne usa un&apos;altra e la mostra nella finestra.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -759,6 +802,48 @@
         <location line="+50"/>
         <source>Resume</source>
         <translation>Riprendi</translation>
+    </message>
+</context>
+<context>
+    <name>UdpInput</name>
+    <message>
+        <location filename="../src/udp/UdpInput.cpp" line="+71"/>
+        <source>P%1: UDP receive error (%2), the port is opened again</source>
+        <translation>P%1: errore di ricezione UDP (%2), la porta si riapre</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+65"/>
+        <source>P%1: video on UDP port %2</source>
+        <translation>P%1: video sulla porta UDP %2</translation>
+    </message>
+    <message>
+        <location line="-54"/>
+        <location line="+82"/>
+        <source>P%1: UDP port %2 not available (%3), video on port %4</source>
+        <translation>P%1: porta UDP %2 non disponibile (%3), video sulla porta %4</translation>
+    </message>
+    <message>
+        <location line="-79"/>
+        <source>P%1: no UDP port can be opened (%2)</source>
+        <translation>P%1: nessuna porta UDP si può aprire (%2)</translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>P%1: UDP port %2 is not available (%3)</source>
+        <translation>P%1: la porta UDP %2 non è disponibile (%3)</translation>
+    </message>
+    <message>
+        <location line="+122"/>
+        <source>UDP receive buffer of %1 KB instead of %2 KB: frames can lose strips</source>
+        <translation>Buffer di ricezione UDP di %1 KB invece di %2 KB: i frame possono perdere fasce</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>To raise it, run once in a terminal, then start the daemon again:
+%1</source>
+        <translation>Per alzarlo, esegui una volta in un terminale, poi riavvia il demone:
+%1</translation>
     </message>
 </context>
 <context>

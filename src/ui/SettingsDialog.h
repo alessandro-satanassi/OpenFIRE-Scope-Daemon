@@ -19,6 +19,8 @@
 #define OFD_SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QVector>
+#include <functional>
 
 #include "app/Settings.h"
 
@@ -35,7 +37,10 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(Settings *settings, QWidget *parent = nullptr);
+    // EN: applyPorts: tries the ports before they are saved (false + message: busy, nothing is saved).
+    // IT: applyPorts: prova le porte prima di salvarle (false + messaggio: occupata, non si salva nulla).
+    using PortApplier = std::function<bool(const QVector<quint16> &video, quint16 discovery, QString *message)>;
+    explicit SettingsDialog(Settings *settings, PortApplier applyPorts = PortApplier(), QWidget *parent = nullptr);
 
     void accept() override;
 
@@ -48,6 +53,7 @@ private:
     static bool parseVidPid(const QString &text, quint16 *vid, quint16 *pid);
 
     Settings *m_settings = nullptr;
+    PortApplier m_applyPorts;
     QSpinBox *m_videoPort[Settings::Players] = {};
     QCheckBox *m_captureEnabled = nullptr;
     QComboBox *m_monitor = nullptr;

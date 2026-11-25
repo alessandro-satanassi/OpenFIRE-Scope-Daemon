@@ -52,6 +52,8 @@ struct SlotStatus {
     double capacityKBs = 0.0;       // C
     double dropPerSec = 0.0;
     double qfullPerSec = 0.0;
+    double udpIncompletePerSec = 0.0;   // EN: UDP frames replaced before complete / IT: frame UDP sostituiti prima di essere completi
+    double udpInvalidPerSec = 0.0;      // EN: UDP packets that fail the checks / IT: pacchetti UDP che non passano i controlli
     bool aimMissing = false;        // DXGI with several players and no absolute aim / DXGI con piu' giocatori senza mira assoluta
 };
 

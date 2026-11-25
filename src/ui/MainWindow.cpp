@@ -45,7 +45,7 @@ namespace {
 
 enum PlayerColumn {
     ColScope, ColPort, ColChannel, ColFirmware, ColUdpPort, ColSource,
-    ColFpsIn, ColFpsOut, ColKbFrame, ColQ, ColCapacity, ColDrop, ColQfull, PlayerColumns
+    ColFpsIn, ColUdpIncomplete, ColUdpInvalid, ColFpsOut, ColKbFrame, ColQ, ColCapacity, ColDrop, ColQfull, PlayerColumns
 };
 
 enum DeviceColumn { DevPort, DevSerial, DevState, DevChannel, DevFirmware, DevDetail, DevRetry, DeviceColumns };
@@ -150,7 +150,10 @@ QWidget *MainWindow::buildStatusTab()
     m_players = new QTableWidget(Settings::Players, PlayerColumns);
     m_players->setHorizontalHeaderLabels({
         tr("Scope"), tr("COM port"), tr("CH"), tr("FW"), tr("UDP port"), tr("Source"),
-        tr("fps in"), tr("fps sent"), tr("KB/frame"), tr("q avg"), tr("C KB/s"), tr("DROP/s"), tr("QFULL/s") });
+        tr("fps in"), tr("Partial/s"), tr("Invalid/s"), tr("fps sent"), tr("KB/frame"), tr("q avg"), tr("C KB/s"),
+        tr("DROP/s"), tr("QFULL/s") });
+    m_players->horizontalHeaderItem(ColUdpIncomplete)->setToolTip(tr("UDP frames replaced before all 15 strips arrived"));
+    m_players->horizontalHeaderItem(ColUdpInvalid)->setToolTip(tr("UDP packets dropped by the checks (format, player, length)"));
     QStringList rows;
     for (int i = 1; i <= Settings::Players; ++i) rows << QStringLiteral("P%1").arg(i);
     m_players->setVerticalHeaderLabels(rows);
@@ -211,8 +214,10 @@ QWidget *MainWindow::buildPreviewTab()
 
     connect(m_showPreview, &QCheckBox::toggled, this, [this](bool on) {
         m_circle->setEnabled(on);
-        if (!on)
+        if (!on) {
             for (PreviewWidget *w : m_preview) w->setFrame(QImage());
+            for (quint64 &seq : m_previewSeq) seq = 0;
+        }
         updatePreviewTimer();
         refreshPreview();
     });
@@ -298,6 +303,8 @@ void MainWindow::refreshStatus()
         setCell(m_players, row, ColUdpPort, s.udpPort ? QString::number(s.udpPort) : kDash);
         setCell(m_players, row, ColSource, source);
         setCell(m_players, row, ColFpsIn, number(s.fpsIn, 0));
+        setCell(m_players, row, ColUdpIncomplete, number(s.udpIncompletePerSec, 1));
+        setCell(m_players, row, ColUdpInvalid, number(s.udpInvalidPerSec, 1));
         setCell(m_players, row, ColFpsOut, dongle ? number(s.fpsOut, 0) : kDash);
         setCell(m_players, row, ColKbFrame, dongle ? number(s.kbPerFrame, 1) : kDash);
         setCell(m_players, row, ColQ, dongle ? number(s.q, 0) : kDash);
@@ -360,7 +367,8 @@ void MainWindow::refreshDevices()
 
 void MainWindow::refreshPreview()
 {
-    // EN: phase 1: only the labels; the frames arrive with the UDP (phase 3). / IT: fase 1: solo le etichette; i frame arrivano con l'UDP (fase 3).
+    // EN: the frame that enters the daemon, before the encoder; copied only when it is a new one.
+    // IT: il frame che entra nel demone, prima dell'encoder; si copia solo quando e' nuovo.
     const QVector<SlotStatus> slotList = m_daemon->slotStatus();
     for (int i = 0; i < slotList.size() && i < Settings::Players; ++i) {
         const SlotStatus &s = slotList[i];
@@ -374,6 +382,18 @@ void MainWindow::refreshPreview()
         }
         m_preview[i]->setLabel(tr("P%1 · %2 · %3 fps").arg(s.player).arg(source).arg(qRound(s.fpsIn)));
         m_preview[i]->setPaused(s.source == SourceKind::UdpPaused);
+
+        // EN: an image only with a live UDP source; otherwise "No frame" or "Paused".
+        // IT: un'immagine solo con una sorgente UDP viva; altrimenti "Nessun frame" o "In pausa".
+        const bool show = m_showPreview->isChecked() && s.source == SourceKind::Udp;
+        const InputFramePtr frame = show ? m_daemon->latestFrame(s.player) : InputFramePtr();
+        if (!frame) {
+            if (m_previewSeq[i] != 0) m_preview[i]->setFrame(QImage());
+            m_previewSeq[i] = 0;
+        } else if (frame->seq != m_previewSeq[i]) {
+            m_previewSeq[i] = frame->seq;
+            m_preview[i]->setFrame(QImage(frame->rgb, OF_SCOPE_W, OF_SCOPE_H, InputFrame::Stride, QImage::Format_RGB888).copy());
+        }
     }
 }
 
@@ -415,7 +435,12 @@ void MainWindow::copyLog()
 // ----------------------------------------------------------------- actions / azioni
 void MainWindow::openSettings()
 {
-    SettingsDialog dialog(m_daemon->settings(), this);
+    SettingsDialog dialog(
+        m_daemon->settings(),
+        [this](const QVector<quint16> &video, quint16 discovery, QString *message) {
+            return m_daemon->tryPorts(video, discovery, message);
+        },
+        this);
     dialog.exec();
 }
 

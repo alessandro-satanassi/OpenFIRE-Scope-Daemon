@@ -32,7 +32,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+43"/>
+        <location filename="../src/app/Daemon.cpp" line="+50"/>
         <source>Test clip: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,12 +57,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+16"/>
         <source>Daemon stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+14"/>
+        <location line="+36"/>
+        <source>The new ports were not applied: %1. The previous ports stay.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Suspended: the serial ports are released</source>
         <translation type="unfinished"></translation>
     </message>
@@ -123,9 +129,30 @@
     </message>
 </context>
 <context>
+    <name>Discovery</name>
+    <message>
+        <location filename="../src/udp/Discovery.cpp" line="+66"/>
+        <location line="+28"/>
+        <location line="+38"/>
+        <source>Discovery on UDP port %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-64"/>
+        <location line="+82"/>
+        <source>Discovery port %1 is not available (%2): the games cannot find the scopes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-31"/>
+        <source>discovery port %1 is not available (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DongleManager</name>
     <message>
-        <location filename="../src/dongle/DongleManager.cpp" line="+102"/>
+        <location filename="../src/dongle/DongleManager.cpp" line="+104"/>
         <source>%1: tried again</source>
         <translation type="unfinished"></translation>
     </message>
@@ -308,18 +335,18 @@
     </message>
     <message>
         <location line="+0"/>
-        <location line="+20"/>
+        <location line="+23"/>
         <source>CH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-20"/>
-        <location line="+20"/>
+        <location line="-23"/>
+        <location line="+23"/>
         <source>FW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-20"/>
+        <location line="-23"/>
         <source>UDP port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -355,12 +382,32 @@
     </message>
     <message>
         <location line="+0"/>
+        <source>Partial/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Invalid/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>DROP/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>QFULL/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UDP frames replaced before all 15 strips arrived</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UDP packets dropped by the checks (format, player, length)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -404,7 +451,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+51"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
@@ -420,12 +467,12 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+58"/>
+        <location line="+60"/>
         <source>Suspend (release the ports)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-55"/>
+        <location line="-57"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -451,34 +498,34 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+53"/>
+        <location line="+55"/>
         <source>duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-49"/>
+        <location line="-51"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+83"/>
+        <location line="+86"/>
         <source>pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-81"/>
-        <location line="+83"/>
+        <location line="-84"/>
+        <location line="+86"/>
         <source>clip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-81"/>
+        <location line="-84"/>
         <source> (no aim)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+25"/>
         <source>Resume</source>
         <translation type="unfinished"></translation>
     </message>
@@ -533,7 +580,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+19"/>
         <source>no source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -543,7 +590,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+37"/>
+        <location line="+49"/>
         <source>Log copied (%n event(s))</source>
         <translation>
             <numerusform>Log copied (%n event)</numerusform>
@@ -551,7 +598,7 @@
         </translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+21"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -577,7 +624,7 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/SettingsDialog.cpp" line="+63"/>
+        <location filename="../src/ui/SettingsDialog.cpp" line="+64"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -753,6 +800,47 @@
     <message>
         <location line="+50"/>
         <source>Resume</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UdpInput</name>
+    <message>
+        <location filename="../src/udp/UdpInput.cpp" line="+71"/>
+        <source>P%1: UDP receive error (%2), the port is opened again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+65"/>
+        <source>P%1: video on UDP port %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-54"/>
+        <location line="+82"/>
+        <source>P%1: UDP port %2 not available (%3), video on port %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-79"/>
+        <source>P%1: no UDP port can be opened (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>P%1: UDP port %2 is not available (%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+122"/>
+        <source>UDP receive buffer of %1 KB instead of %2 KB: frames can lose strips</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>To raise it, run once in a terminal, then start the daemon again:
+%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

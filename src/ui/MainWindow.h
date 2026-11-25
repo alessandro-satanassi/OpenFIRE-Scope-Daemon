@@ -85,6 +85,7 @@ private:
     QCheckBox *m_showPreview = nullptr;
     QCheckBox *m_circle = nullptr;
     PreviewWidget *m_preview[Settings::Players] = {};
+    quint64 m_previewSeq[Settings::Players] = {};   // EN: frame shown, 0 = none / IT: frame mostrato, 0 = nessuno
     QPlainTextEdit *m_log = nullptr;
     QAction *m_suspendAction = nullptr;
     QLabel *m_statusText = nullptr;

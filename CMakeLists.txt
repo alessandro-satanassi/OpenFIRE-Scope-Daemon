@@ -47,6 +47,15 @@ set(PROJECT_SOURCES
     src/dongle/DongleManager.cpp
     src/clip/ClipPlayer.h
     src/clip/ClipPlayer.cpp
+    src/udp/SlotInput.h
+    src/udp/SlotInput.cpp
+    src/udp/NativeUdp.h
+    src/udp/UdpReceiver.h
+    src/udp/UdpReceiver.cpp
+    src/udp/UdpInput.h
+    src/udp/UdpInput.cpp
+    src/udp/Discovery.h
+    src/udp/Discovery.cpp
     src/ui/TrayIcon.h
     src/ui/TrayIcon.cpp
     src/ui/MainWindow.h
@@ -60,9 +69,9 @@ set(PROJECT_SOURCES
 
 # EN: native code of one system only. / IT: codice nativo di un solo sistema.
 if(WIN32)
-    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp)
+    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp src/udp/NativeUdp_win.cpp)
 else()
-    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp)
+    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp src/udp/NativeUdp_posix.cpp)
 endif()
 
 qt_add_executable(OpenFIRE-Scope-Daemon MANUAL_FINALIZATION ${PROJECT_SOURCES})
@@ -94,6 +103,24 @@ set_target_properties(OpenFIRE-Scope-Daemon PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+# EN: bench tool, not installed: fake game that sends test images over UDP (tools/of_test_sender).
+# IT: strumento per il banco, non installato: finto gioco che manda immagini di prova in UDP (tools/of_test_sender).
+option(OFD_BUILD_TOOLS "Build tools/of_test_sender" ON)
+if(OFD_BUILD_TOOLS)
+    qt_add_executable(of_test_sender tools/of_test_sender/main.cpp)
+    target_include_directories(of_test_sender PRIVATE protocol)
+    target_link_libraries(of_test_sender PRIVATE Qt6::Core Qt6::Network)
+    if(WIN32)
+        target_link_libraries(of_test_sender PRIVATE winmm)
+    endif()
+    if(MSVC)
+        target_compile_options(of_test_sender PRIVATE /W4 /utf-8)
+    else()
+        target_compile_options(of_test_sender PRIVATE -Wall -Wextra)
+    endif()
+    set_target_properties(of_test_sender PROPERTIES MACOSX_BUNDLE FALSE WIN32_EXECUTABLE FALSE)
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS OpenFIRE-Scope-Daemon

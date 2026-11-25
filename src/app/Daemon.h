@@ -25,16 +25,19 @@
 
 #include "app/Settings.h"
 #include "app/Status.h"
+#include "udp/SlotInput.h"
 
 class ClipPlayer;
+class Discovery;
 class DongleManager;
+class UdpInput;
 
 // EN: The daemon core: owns every part and the state the window shows. It lives in the main thread and
-//     never uses widgets, so it also runs headless. Phase 2: dongles and test clip; UDP, encoder and
-//     capture arrive in the next phases.
+//     never uses widgets, so it also runs headless. Phase 3: dongles, test clip, UDP from the games,
+//     discovery and preview; encoder and capture arrive in the next phases.
 // IT: Il cuore del demone: possiede tutte le parti e lo stato che la finestra mostra. Vive nel thread
-//     principale e non usa mai i widget, quindi funziona anche senza finestra. Fase 2: dongle e clip di
-//     prova; UDP, encoder e cattura arrivano nelle fasi successive.
+//     principale e non usa mai i widget, quindi funziona anche senza finestra. Fase 3: dongle, clip di
+//     prova, UDP dai giochi, discovery e anteprima; encoder e cattura arrivano nelle fasi successive.
 class Daemon : public QObject
 {
     Q_OBJECT
@@ -56,8 +59,15 @@ public:
     QStringList warnings() const;
     IconState iconState() const;
     QString summary() const;   // tooltip of the tray icon / suggerimento dell'icona
+    InputFramePtr latestFrame(int player) const;   // EN: for the preview / IT: per l'anteprima
 
     bool isSuspended() const { return m_suspended; }
+
+    // EN: from the settings dialog, before saving: applies the ports all together or none. false: nothing changed,
+    //     message says why. The dialog saves the INI only after true, so the INI holds only ports that worked.
+    // IT: dalla finestra delle impostazioni, prima di salvare: applica le porte tutte insieme o nessuna. false: non
+    //     cambia nulla, message dice perche'. La finestra salva l'INI solo dopo true, cosi' l'INI ha solo porte che hanno funzionato.
+    bool tryPorts(const QVector<quint16> &video, quint16 discovery, QString *message);
 
 public slots:
     void setSuspended(bool suspended);
@@ -71,12 +81,17 @@ signals:
 
 private:
     void applySettings();
+    bool applyPorts(const QVector<quint16> &video, quint16 discovery, QString *failure);
+    QByteArray discoveryAnswer() const;
 
     Settings *m_settings = nullptr;
     QVector<SlotStatus> m_slots;
     DongleManager *m_dongles = nullptr;
     ClipPlayer *m_clip = nullptr;
+    UdpInput *m_udp = nullptr;
+    Discovery *m_discovery = nullptr;
     QStringList m_warnings;
+    QString m_portWarning;   // EN: last port change not applied / IT: ultimo cambio di porte non applicato
     bool m_suspended = false;
     bool m_running = false;
 };

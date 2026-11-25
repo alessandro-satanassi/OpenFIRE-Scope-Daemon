@@ -8,7 +8,7 @@
 
 The daemon runs in the notification area (the menu bar on macOS). It receives the video of each player from the games over UDP on 127.0.0.1 (or, on Windows, from a screen capture), encodes it and sends it through the USB dongles to the round display of the OpenFIRE scopes. Up to 4 players.
 
-> **Status: in development.** Phase 2: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth) and the test clip. UDP, encoder and screen capture arrive in the next phases.
+> **Status: in development.** Phase 3: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810 and preview. Encoder and screen capture arrive in the next phases.
 
 ## Systems
  - Windows 10 (1809) or later, 64 bit.
@@ -28,6 +28,9 @@ Only one daemon runs per user: starting it again opens the window of the running
 
 ## Test clip
 `tools/make_clip.py` makes a clip already encoded in the scope format (Python 3 and numpy; Pillow only for `--images`), for example `python tools/make_clip.py -o test.ofclip`. `tools/test_clip.ofclip` is ready to use: `OpenFIRE-Scope-Daemon --play-clip tools/test_clip.ofclip`.
+
+## Fake game for the bench
+`of_test_sender` (built with the daemon, in the build folder) sends animated test images to the daemon over UDP, as a game would. It takes the ports from the discovery, otherwise it uses 47811-47814. Examples: `of_test_sender` (4 players, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` lists every option. The images appear in the Preview tab; from phase 4 they also reach the scopes.
 
 ## Linux: serial port permissions
 If a dongle shows "access denied", the window shows the command to run once to add the udev rule.
@@ -56,7 +59,7 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
 
 Il demone gira nell'area di notifica (nella barra dei menu su macOS). Riceve il video di ogni giocatore dai giochi via UDP su 127.0.0.1 (oppure, su Windows, da una cattura dello schermo), lo codifica e lo manda tramite i dongle USB al display rotondo dei mirini OpenFIRE. Fino a 4 giocatori.
 
-> **Stato: in sviluppo.** Fase 2: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB) e clip di prova. UDP, encoder e cattura dello schermo arrivano nelle fasi successive.
+> **Stato: in sviluppo.** Fase 3: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810 e anteprima. Encoder e cattura dello schermo arrivano nelle fasi successive.
 
 ## Sistemi
  - Windows 10 (1809) o successivo, 64 bit.
@@ -76,6 +79,9 @@ Gira un solo demone per utente: avviarlo di nuovo apre la finestra di quello gi�
 
 ## Clip di prova
 `tools/make_clip.py` crea una clip già codificata nel formato del mirino (Python 3 e numpy; Pillow solo per `--images`), per esempio `python tools/make_clip.py -o prova.ofclip`. `tools/test_clip.ofclip` è pronta da usare: `OpenFIRE-Scope-Daemon --play-clip tools/test_clip.ofclip`.
+
+## Finto gioco per il banco
+`of_test_sender` (compilato insieme al demone, nella cartella di build) manda al demone in UDP immagini di prova animate, come farebbe un gioco. Prende le porte dalla discovery, altrimenti usa 47811-47814. Esempi: `of_test_sender` (4 giocatori, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` elenca tutte le opzioni. Le immagini compaiono nella scheda Anteprima; dalla fase 4 arrivano anche ai mirini.
 
 ## Linux: permessi delle porte seriali
 Se un dongle risulta "accesso negato", la finestra mostra il comando da eseguire una volta per aggiungere la regola udev.

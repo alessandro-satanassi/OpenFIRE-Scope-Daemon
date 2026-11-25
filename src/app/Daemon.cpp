@@ -19,9 +19,12 @@
 
 #include <QDir>
 
+#include "OpenFIRE_Scope_Protocol.h"
 #include "app/Log.h"
 #include "clip/ClipPlayer.h"
 #include "dongle/DongleManager.h"
+#include "udp/Discovery.h"
+#include "udp/UdpInput.h"
 
 Daemon::Daemon(Settings *settings, QObject *parent)
     : QObject(parent)
@@ -32,6 +35,10 @@ Daemon::Daemon(Settings *settings, QObject *parent)
 
     m_dongles = new DongleManager(m_settings, this);
     connect(m_dongles, &DongleManager::changed, this, &Daemon::statusChanged);
+    m_udp = new UdpInput(m_settings, this);
+    connect(m_udp, &UdpInput::changed, this, &Daemon::statusChanged);
+    m_discovery = new Discovery(m_settings, [this]() { return discoveryAnswer(); }, this);
+    connect(m_discovery, &Discovery::changed, this, &Daemon::statusChanged);
     connect(m_settings, &Settings::changed, this, &Daemon::applySettings);
 }
 
@@ -64,6 +71,8 @@ void Daemon::start()
     Log::info(tr("OpenFIRE Scope Daemon %1 started").arg(QStringLiteral(OFD_VERSION)));
     Log::info(tr("Settings: %1").arg(QDir::toNativeSeparators(m_settings->filePath())));
     if (m_settings->hasOverrides()) Log::info(tr("Command line values are used for this run only"));
+    m_udp->start();
+    m_discovery->start();
     m_dongles->start();
     if (m_clip) m_clip->start();
     emit statusChanged();
@@ -75,19 +84,70 @@ void Daemon::stop()
     m_running = false;
     if (m_clip) m_clip->stop();
     m_dongles->stop();
+    m_discovery->stop();
+    m_udp->stop();
     Log::info(tr("Daemon stopped"));
 }
 
 void Daemon::applySettings()
 {
     Log::instance().setFile(m_settings->logToFile() ? m_settings->logFilePath() : QString());
+    // EN: normally nothing changes here: the dialog has already applied the ports before saving them.
+    // IT: di norma qui non cambia nulla: la finestra ha gia' applicato le porte prima di salvarle.
+    QVector<quint16> video;
+    for (int p = 1; p <= Settings::Players; ++p) video << m_settings->preferredVideoPort(p);
+    QString failure;
+    if (applyPorts(video, m_settings->discoveryPort(), &failure)) {
+        m_portWarning.clear();
+    } else {
+        m_portWarning = tr("The new ports were not applied: %1. The previous ports stay.").arg(failure);
+        Log::warn(m_portWarning);
+    }
     emit statusChanged();
+}
+
+bool Daemon::applyPorts(const QVector<quint16> &video, quint16 discovery, QString *failure)
+{
+    // EN: the ports change all together or not at all. Every port that changes (video and discovery) is
+    //     released first, so ports can be swapped; then all the new ones are bound. If one is busy, the new ones
+    //     are dropped and the old ones taken back.
+    // IT: le porte cambiano tutte insieme o nessuna. Ogni porta che cambia (video e discovery) si rilascia prima,
+    //     cosi' le porte si possono scambiare; poi si legano tutte le nuove. Se una e' occupata, le nuove si
+    //     scartano e si riprendono le vecchie.
+    if (!m_running) return true;
+    m_udp->releaseOld(video);
+    m_discovery->releaseOld(discovery);
+    if (m_udp->bindNew(failure) && m_discovery->bindNew(failure)) {
+        m_udp->commit();
+        m_discovery->commit();
+        return true;
+    }
+    m_udp->dropNew();
+    m_discovery->dropNew();
+    m_udp->restoreOld();
+    m_discovery->restoreOld();
+    return false;
+}
+
+bool Daemon::tryPorts(const QVector<quint16> &video, quint16 discovery, QString *message)
+{
+    QString failure;
+    if (applyPorts(video, discovery, &failure)) {
+        m_portWarning.clear();
+        return true;
+    }
+    const QString text = tr("The new ports were not applied: %1. The previous ports stay.").arg(failure);
+    Log::warn(text);
+    if (message) *message = text;
+    emit statusChanged();
+    return false;
 }
 
 QVector<SlotStatus> Daemon::slotStatus() const
 {
     QVector<SlotStatus> out = m_slots;
-    m_dongles->fillSlots(&out);
+    m_udp->fillSlots(&out);
+    m_dongles->fillSlots(&out);   // EN: after the UDP: the test clip wins as source / IT: dopo l'UDP: la clip di prova vince come sorgente
     return out;
 }
 
@@ -99,7 +159,10 @@ QVector<DeviceStatus> Daemon::devices() const
 QStringList Daemon::warnings() const
 {
     QStringList out = m_warnings;
+    if (!m_portWarning.isEmpty()) out << m_portWarning;
     out << m_dongles->warnings();
+    out << m_discovery->warnings();
+    out << m_udp->warnings();
     if (m_suspended) out.prepend(tr("Suspended: the serial ports are released"));
     return out;
 }
@@ -168,4 +231,50 @@ void Daemon::retryPort(const QString &port)
 {
     // EN: forgets the result of this port and probes it again. / IT: dimentica l'esito di questa porta e la riprova.
     m_dongles->retryPort(port);
+}
+
+InputFramePtr Daemon::latestFrame(int player) const
+{
+    return m_udp->latestFrame(player);
+}
+
+QByteArray Daemon::discoveryAnswer() const
+{
+    // EN: one line per dongle: "OF_SCOPE:Pn;PORT=..." for the paired ones (with two dongles on the same player
+    //     only the first), "OF_SCOPE:UNPAIRED" for the free ones and those still in BOOT, "OF_SCOPE:NONE"
+    //     without dongles. Extra fields are ignored by the games.
+    // IT: una riga per dongle: "OF_SCOPE:Pn;PORT=..." per quelli abbinati (con due dongle sullo stesso giocatore
+    //     solo il primo), "OF_SCOPE:UNPAIRED" per quelli liberi e quelli ancora in BOOT, "OF_SCOPE:NONE"
+    //     senza dongle. I campi in piu' i giochi li ignorano.
+    QList<QByteArray> lines;
+    for (const SlotStatus &s : slotStatus()) {
+        if (s.scope == ScopeState::NoDongle) continue;
+        QByteArray src;
+        switch (s.source) {
+        case SourceKind::None:      src = "NONE"; break;
+        case SourceKind::Udp:       src = "UDP"; break;
+        case SourceKind::UdpPaused: src = "PAUSE"; break;
+        case SourceKind::Dxgi:      src = "DXGI"; break;
+        case SourceKind::Clip:      src = "CLIP"; break;
+        }
+        QByteArray line = QByteArray(OF_MSG_SCOPE) + 'P' + QByteArray::number(s.player) + ";PORT=" + QByteArray::number(s.udpPort);
+        if (!s.firmware.isEmpty()) line += ";FW=" + s.firmware.toLatin1();
+        if (s.channel) line += ";CH=" + QByteArray::number(s.channel);
+        line += ";SRC=" + src;
+        line += ";FPS=" + QByteArray::number(qRound(s.fpsOut));
+        line += ";Q=" + QByteArray::number(qRound(s.q));
+        line += ";C=" + QByteArray::number(qRound(s.capacityKBs));
+        line += ";DROP=" + QByteArray::number(qRound(s.dropPerSec));
+        line += ";QFULL=" + QByteArray::number(qRound(s.qfullPerSec));
+        lines << line;
+    }
+    for (const DeviceStatus &d : devices()) {
+        if (d.state != PortState::Free && d.state != PortState::Boot) continue;
+        QByteArray line = QByteArray(OF_MSG_SCOPE) + OF_MSG_UNPAIRED;
+        if (!d.firmware.isEmpty()) line += ";FW=" + d.firmware.toLatin1();
+        if (d.channel) line += ";CH=" + QByteArray::number(d.channel);
+        lines << line;
+    }
+    if (lines.isEmpty()) lines << QByteArray(OF_MSG_SCOPE) + OF_MSG_NONE;
+    return lines.join('\n');
 }

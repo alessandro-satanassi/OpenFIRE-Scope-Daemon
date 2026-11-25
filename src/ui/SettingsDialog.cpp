@@ -56,9 +56,10 @@ QString hex4(quint16 v)
 }
 } // namespace
 
-SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent)
+SettingsDialog::SettingsDialog(Settings *settings, PortApplier applyPorts, QWidget *parent)
     : QDialog(parent)
     , m_settings(settings)
+    , m_applyPorts(std::move(applyPorts))
 {
     setWindowTitle(tr("Settings"));
 
@@ -277,6 +278,18 @@ void SettingsDialog::accept()
         QString error;
         if (!readLightgunTable(&map, &error)) {
             QMessageBox::warning(this, windowTitle(), error);
+            return;
+        }
+    }
+
+    // EN: the ports are tried before anything is saved: if one is busy, nothing changes and the dialog stays open.
+    // IT: le porte si provano prima di salvare qualsiasi cosa: se una e' occupata, non cambia nulla e la finestra resta aperta.
+    if (m_applyPorts) {
+        QVector<quint16> video;
+        for (QSpinBox *box : m_videoPort) video << quint16(box->value());
+        QString message;
+        if (!m_applyPorts(video, quint16(m_discoveryPort->value()), &message)) {
+            QMessageBox::warning(this, windowTitle(), message);
             return;
         }
     }
