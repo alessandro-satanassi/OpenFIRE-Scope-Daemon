@@ -25,6 +25,7 @@
 #include "dongle/DongleManager.h"
 #include "udp/Discovery.h"
 #include "udp/UdpInput.h"
+#include "video/SlotEncoder.h"
 
 Daemon::Daemon(Settings *settings, QObject *parent)
     : QObject(parent)
@@ -39,6 +40,14 @@ Daemon::Daemon(Settings *settings, QObject *parent)
     connect(m_udp, &UdpInput::changed, this, &Daemon::statusChanged);
     m_discovery = new Discovery(m_settings, [this]() { return discoveryAnswer(); }, this);
     connect(m_discovery, &Discovery::changed, this, &Daemon::statusChanged);
+
+    // EN: one encoder per slot, running while the slot has a paired scope; with the test clip they stay off.
+    // IT: un encoder per slot, attivo mentre lo slot ha un mirino abbinato; con la clip di prova restano spenti.
+    for (int p = 1; p <= Settings::Players; ++p) m_encoders[p - 1] = new SlotEncoder(m_udp->slot(p), this);
+    m_dongles->setSlotLinkHandler([this](int player, DongleLink *link) {
+        if (player < 1 || player > Settings::Players) return;
+        m_encoders[player - 1]->setLink(m_clip ? nullptr : link);
+    });
     connect(m_settings, &Settings::changed, this, &Daemon::applySettings);
 }
 
@@ -92,6 +101,13 @@ void Daemon::stop()
 void Daemon::applySettings()
 {
     Log::instance().setFile(m_settings->logToFile() ? m_settings->logFilePath() : QString());
+    // EN: the encoder constants are used from the next start of each encoder (next pairing).
+    // IT: le costanti dell'encoder valgono dal prossimo avvio di ogni encoder (prossimo abbinamento).
+    const ThreadPriority ep = m_settings->encoderPriority();
+    const QThread::Priority encoderPriority = ep == ThreadPriority::AboveNormal ? QThread::HighPriority
+                                            : ep == ThreadPriority::BelowNormal ? QThread::LowPriority
+                                                                                 : QThread::NormalPriority;
+    for (SlotEncoder *e : m_encoders) e->setConfig(m_settings->encoderConfig(), encoderPriority);
     // EN: normally nothing changes here: the dialog has already applied the ports before saving them.
     // IT: di norma qui non cambia nulla: la finestra ha gia' applicato le porte prima di salvarle.
     QVector<quint16> video;
@@ -147,6 +163,8 @@ QVector<SlotStatus> Daemon::slotStatus() const
 {
     QVector<SlotStatus> out = m_slots;
     m_udp->fillSlots(&out);
+    for (SlotStatus &s : out)
+        if (s.player >= 1 && s.player <= Settings::Players) s.encodeMs = m_encoders[s.player - 1]->encodeMs();
     m_dongles->fillSlots(&out);   // EN: after the UDP: the test clip wins as source / IT: dopo l'UDP: la clip di prova vince come sorgente
     return out;
 }

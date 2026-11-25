@@ -14,7 +14,7 @@ constexpr int kScanEveryMs = 1000;
 constexpr int kNewPortWaitMs = 1000;    // EN: lets esptool open it first / IT: lascia che esptool la apra per primo
 constexpr int kBusyRetryMs = 5000;
 constexpr int kRescanTimeoutMs = 10000;
-constexpr double kDefaultCapacityKBs = 450.0;
+constexpr double kDefaultCapacityKBs = DongleLink::DefaultCapacityKBs;
 
 const int kChannels[OF_SCOPE_N_CHANNELS] = OF_SCOPE_CHANNELS;
 
@@ -213,6 +213,12 @@ void DongleManager::openLink(Entry &e)
 void DongleManager::closeLink(Entry &e)
 {
     if (!e.link) return;
+    // EN: the encoder of the slot lets go of the link before it is destroyed. / IT: l'encoder dello slot lascia il collegamento prima che venga distrutto.
+    for (int p = 0; p < Settings::Players; ++p) {
+        if (m_slotLink[p] != e.link.get()) continue;
+        m_slotLink[p] = nullptr;
+        if (m_slotLinkHandler) m_slotLinkHandler(p + 1, nullptr);
+    }
     e.link->disconnect(this);
     e.link.reset();   // EN: stops and waits for the thread (the frame being written ends) / IT: ferma e aspetta il thread (la trama in scrittura finisce)
     e.linkId = 0;
@@ -413,11 +419,29 @@ void DongleManager::releaseSlot(Entry &e)
 
 void DongleManager::updateVideoEnabled()
 {
+    // EN: only the owner of a slot sends video. With the test clip the manager gives the source to the links,
+    //     otherwise the encoder of the slot does.
+    // IT: manda video solo il proprietario di uno slot. Con la clip di prova la sorgente ai collegamenti la da'
+    //     il gestore, altrimenti l'encoder dello slot.
     for (auto &kv : m_entries) {
         Entry &e = kv.second;
         if (!e.link) continue;
-        e.link->setVideoEnabled(e.state == State::Paired && m_source != SourceKind::None);
+        e.link->setVideoEnabled(e.state == State::Paired);
+        if (m_source == SourceKind::Clip || m_clipEnded) e.link->setSource(m_source == SourceKind::Clip ? DongleLink::Source::Live : DongleLink::Source::None, 0);
     }
+    m_clipEnded = false;
+    for (int p = 1; p <= Settings::Players; ++p) {
+        Entry *e = slotOwner(p);
+        DongleLink *link = (e && e->link && e->state == State::Paired) ? e->link.get() : nullptr;
+        if (link == m_slotLink[p - 1]) continue;
+        m_slotLink[p - 1] = link;
+        if (m_slotLinkHandler) m_slotLinkHandler(p, link);
+    }
+}
+
+void DongleManager::setSlotLinkHandler(SlotLinkHandler handler)
+{
+    m_slotLinkHandler = std::move(handler);
 }
 
 void DongleManager::submitFrameToAll(const EncodedFramePtr &frame)
@@ -431,6 +455,7 @@ void DongleManager::submitFrameToAll(const EncodedFramePtr &frame)
 void DongleManager::setVideoSource(SourceKind source)
 {
     if (m_source == source) return;
+    if (m_source == SourceKind::Clip) m_clipEnded = true;
     m_source = source;
     updateVideoEnabled();
     emit changed();
@@ -538,7 +563,7 @@ void DongleManager::fillSlots(QVector<SlotStatus> *slotList) const
         s.fpsOut = e->fpsOut;
         s.kbPerFrame = e->kbPerFrame;
         s.q = e->q;
-        s.capacityKBs = e->capacityKBs > 0.0 ? e->capacityKBs : kDefaultCapacityKBs;
+        s.capacityKBs = e->link ? e->link->capacityKBs() : kDefaultCapacityKBs;
         s.dropPerSec = e->dropPerSec;
         s.qfullPerSec = e->qfullPerSec;
         if (m_source != SourceKind::None) s.source = m_source;

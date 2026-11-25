@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QTimer>
 #include <QVector>
+#include <functional>
 #include <map>
 #include <memory>
 
@@ -34,6 +35,13 @@ public:
     void stop();
     void setSuspended(bool suspended);
     void retryPort(const QString &port);
+
+    // EN: called (main thread) when the link that sends the video of a slot changes, and always before that
+    //     link is destroyed; null = no scope for the slot. The encoder of the slot uses it.
+    // IT: chiamata (thread principale) quando cambia il collegamento che manda il video di uno slot, e sempre
+    //     prima che quel collegamento venga distrutto; nullo = nessun mirino per lo slot. La usa l'encoder dello slot.
+    using SlotLinkHandler = std::function<void(int player, DongleLink *link)>;
+    void setSlotLinkHandler(SlotLinkHandler handler);
 
     // EN: sends a frame to every paired scope that owns its slot (test clip). / IT: manda un frame a ogni mirino abbinato che possiede il suo slot (clip di prova).
     void submitFrameToAll(const EncodedFramePtr &frame);
@@ -106,7 +114,10 @@ private:
     bool m_running = false;
     bool m_suspended = false;
     SourceKind m_source = SourceKind::None;
+    bool m_clipEnded = false;
     QStringList m_channelWarnings;
+    DongleLink *m_slotLink[Settings::Players] = {};
+    SlotLinkHandler m_slotLinkHandler;
 };
 
 #endif // OFD_DONGLEMANAGER_H

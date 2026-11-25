@@ -32,7 +32,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+50"/>
+        <location filename="../src/app/Daemon.cpp" line="+59"/>
         <source>Test clip: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -62,13 +62,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+21"/>
         <location line="+36"/>
         <source>The new ports were not applied: %1. The previous ports stay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+29"/>
         <source>Suspended: the serial ports are released</source>
         <translation type="unfinished"></translation>
     </message>
@@ -172,7 +172,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+93"/>
         <source>%1: opened, WHOAMI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -247,7 +247,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+80"/>
         <source>%1 and %2 are on the same channel %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -335,18 +335,18 @@
     </message>
     <message>
         <location line="+0"/>
-        <location line="+23"/>
+        <location line="+26"/>
         <source>CH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-23"/>
-        <location line="+23"/>
+        <location line="-26"/>
+        <location line="+26"/>
         <source>FW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-23"/>
+        <location line="-26"/>
         <source>UDP port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -391,6 +391,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Encode ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+1"/>
         <source>DROP/s</source>
         <translation type="unfinished"></translation>
@@ -408,6 +413,21 @@
     <message>
         <location line="+1"/>
         <source>UDP packets dropped by the checks (format, player, length)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Frames sent to the dongle per second, resends included</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mean time to encode one frame on this PC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Estimated USB capacity: it goes down with congestion and up again after 5 s without</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -467,12 +487,12 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+60"/>
+        <location line="+61"/>
         <source>Suspend (release the ports)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-57"/>
+        <location line="-58"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -498,34 +518,34 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+55"/>
+        <location line="+56"/>
         <source>duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-51"/>
+        <location line="-52"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+86"/>
+        <location line="+87"/>
         <source>pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-84"/>
-        <location line="+86"/>
+        <location line="-85"/>
+        <location line="+87"/>
         <source>clip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-84"/>
+        <location line="-85"/>
         <source> (no aim)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+26"/>
         <source>Resume</source>
         <translation type="unfinished"></translation>
     </message>
@@ -812,28 +832,28 @@
     </message>
     <message>
         <location line="+12"/>
-        <location line="+65"/>
+        <location line="+73"/>
         <source>P%1: video on UDP port %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-54"/>
-        <location line="+82"/>
+        <location line="-62"/>
+        <location line="+91"/>
         <source>P%1: UDP port %2 not available (%3), video on port %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-79"/>
+        <location line="-88"/>
         <source>P%1: no UDP port can be opened (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+35"/>
         <source>P%1: UDP port %2 is not available (%3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+130"/>
         <source>UDP receive buffer of %1 KB instead of %2 KB: frames can lose strips</source>
         <translation type="unfinished"></translation>
     </message>

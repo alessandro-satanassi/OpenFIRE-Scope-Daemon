@@ -32,7 +32,7 @@
 <context>
     <name>Daemon</name>
     <message>
-        <location filename="../src/app/Daemon.cpp" line="+50"/>
+        <location filename="../src/app/Daemon.cpp" line="+59"/>
         <source>Test clip: %1</source>
         <translation>Clip di prova: %1</translation>
     </message>
@@ -62,13 +62,13 @@
         <translation>Demone fermato</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+21"/>
         <location line="+36"/>
         <source>The new ports were not applied: %1. The previous ports stay.</source>
         <translation>Le nuove porte non sono state applicate: %1. Restano le porte precedenti.</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+29"/>
         <source>Suspended: the serial ports are released</source>
         <translation>Sospeso: le porte seriali sono rilasciate</translation>
     </message>
@@ -172,7 +172,7 @@
         <translation>%1: scollegata</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+93"/>
         <source>%1: opened, WHOAMI</source>
         <translation>%1: aperta, WHOAMI</translation>
     </message>
@@ -247,7 +247,7 @@
         <translation>%1: il mirino P%2 prende il posto</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+80"/>
         <source>%1 and %2 are on the same channel %3</source>
         <translation>%1 e %2 sono sullo stesso canale %3</translation>
     </message>
@@ -336,18 +336,18 @@
     </message>
     <message>
         <location line="+0"/>
-        <location line="+23"/>
+        <location line="+26"/>
         <source>CH</source>
         <translation>CH</translation>
     </message>
     <message>
-        <location line="-23"/>
-        <location line="+23"/>
+        <location line="-26"/>
+        <location line="+26"/>
         <source>FW</source>
         <translation>FW</translation>
     </message>
     <message>
-        <location line="-23"/>
+        <location line="-26"/>
         <source>UDP port</source>
         <translation>Porta UDP</translation>
     </message>
@@ -392,6 +392,11 @@
         <translation>Non validi/s</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Encode ms</source>
+        <translation>Codifica ms</translation>
+    </message>
+    <message>
         <location line="+1"/>
         <source>DROP/s</source>
         <translation>DROP/s</translation>
@@ -410,6 +415,21 @@
         <location line="+1"/>
         <source>UDP packets dropped by the checks (format, player, length)</source>
         <translation>Pacchetti UDP scartati dai controlli (formato, giocatore, lunghezza)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Frames sent to the dongle per second, resends included</source>
+        <translation>Frame mandati al dongle al secondo, reinvii compresi</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mean time to encode one frame on this PC</source>
+        <translation>Tempo medio di codifica di un frame su questo PC</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Estimated USB capacity: it goes down with congestion and up again after 5 s without</source>
+        <translation>Capacità USB stimata: scende con la congestione e risale dopo 5 s senza</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -468,12 +488,12 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+60"/>
+        <location line="+61"/>
         <source>Suspend (release the ports)</source>
         <translation>Sospendi (rilascia le porte)</translation>
     </message>
     <message>
-        <location line="-57"/>
+        <location line="-58"/>
         <source>&amp;Quit</source>
         <translation>&amp;Esci</translation>
     </message>
@@ -499,34 +519,34 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+55"/>
+        <location line="+56"/>
         <source>duplicate</source>
         <translation>doppio</translation>
     </message>
     <message>
-        <location line="-51"/>
+        <location line="-52"/>
         <source>none</source>
         <translation>nessuna</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+86"/>
+        <location line="+87"/>
         <source>pause</source>
         <translation>pausa</translation>
     </message>
     <message>
-        <location line="-84"/>
-        <location line="+86"/>
+        <location line="-85"/>
+        <location line="+87"/>
         <source>clip</source>
         <translation>clip</translation>
     </message>
     <message>
-        <location line="-84"/>
+        <location line="-85"/>
         <source> (no aim)</source>
         <translation> (senza mira)</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+26"/>
         <source>Resume</source>
         <translation>Riprendi</translation>
     </message>
@@ -652,7 +672,7 @@
     <message>
         <location line="+11"/>
         <source>Preferred UDP port of each player. If it is taken, the daemon uses another one and shows it in the window.</source>
-        <translation>Porta UDP preferita di ogni giocatore. Se è occupata, il demone ne usa un&apos;altra e la mostra nella finestra.</translation>
+        <translation>Porta UDP preferita di ogni giocatore. Se è occupata, il demone ne usa un'altra e la mostra nella finestra.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -813,28 +833,28 @@
     </message>
     <message>
         <location line="+12"/>
-        <location line="+65"/>
+        <location line="+73"/>
         <source>P%1: video on UDP port %2</source>
         <translation>P%1: video sulla porta UDP %2</translation>
     </message>
     <message>
-        <location line="-54"/>
-        <location line="+82"/>
+        <location line="-62"/>
+        <location line="+91"/>
         <source>P%1: UDP port %2 not available (%3), video on port %4</source>
         <translation>P%1: porta UDP %2 non disponibile (%3), video sulla porta %4</translation>
     </message>
     <message>
-        <location line="-79"/>
+        <location line="-88"/>
         <source>P%1: no UDP port can be opened (%2)</source>
         <translation>P%1: nessuna porta UDP si può aprire (%2)</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+35"/>
         <source>P%1: UDP port %2 is not available (%3)</source>
         <translation>P%1: la porta UDP %2 non è disponibile (%3)</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+130"/>
         <source>UDP receive buffer of %1 KB instead of %2 KB: frames can lose strips</source>
         <translation>Buffer di ricezione UDP di %1 KB invece di %2 KB: i frame possono perdere fasce</translation>
     </message>

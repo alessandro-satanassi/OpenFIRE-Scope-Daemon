@@ -45,7 +45,7 @@ namespace {
 
 enum PlayerColumn {
     ColScope, ColPort, ColChannel, ColFirmware, ColUdpPort, ColSource,
-    ColFpsIn, ColUdpIncomplete, ColUdpInvalid, ColFpsOut, ColKbFrame, ColQ, ColCapacity, ColDrop, ColQfull, PlayerColumns
+    ColFpsIn, ColUdpIncomplete, ColUdpInvalid, ColFpsOut, ColKbFrame, ColQ, ColEncode, ColCapacity, ColDrop, ColQfull, PlayerColumns
 };
 
 enum DeviceColumn { DevPort, DevSerial, DevState, DevChannel, DevFirmware, DevDetail, DevRetry, DeviceColumns };
@@ -150,10 +150,13 @@ QWidget *MainWindow::buildStatusTab()
     m_players = new QTableWidget(Settings::Players, PlayerColumns);
     m_players->setHorizontalHeaderLabels({
         tr("Scope"), tr("COM port"), tr("CH"), tr("FW"), tr("UDP port"), tr("Source"),
-        tr("fps in"), tr("Partial/s"), tr("Invalid/s"), tr("fps sent"), tr("KB/frame"), tr("q avg"), tr("C KB/s"),
+        tr("fps in"), tr("Partial/s"), tr("Invalid/s"), tr("fps sent"), tr("KB/frame"), tr("q avg"), tr("Encode ms"), tr("C KB/s"),
         tr("DROP/s"), tr("QFULL/s") });
     m_players->horizontalHeaderItem(ColUdpIncomplete)->setToolTip(tr("UDP frames replaced before all 15 strips arrived"));
     m_players->horizontalHeaderItem(ColUdpInvalid)->setToolTip(tr("UDP packets dropped by the checks (format, player, length)"));
+    m_players->horizontalHeaderItem(ColFpsOut)->setToolTip(tr("Frames sent to the dongle per second, resends included"));
+    m_players->horizontalHeaderItem(ColEncode)->setToolTip(tr("Mean time to encode one frame on this PC"));
+    m_players->horizontalHeaderItem(ColCapacity)->setToolTip(tr("Estimated USB capacity: it goes down with congestion and up again after 5 s without"));
     QStringList rows;
     for (int i = 1; i <= Settings::Players; ++i) rows << QStringLiteral("P%1").arg(i);
     m_players->setVerticalHeaderLabels(rows);
@@ -308,6 +311,7 @@ void MainWindow::refreshStatus()
         setCell(m_players, row, ColFpsOut, dongle ? number(s.fpsOut, 0) : kDash);
         setCell(m_players, row, ColKbFrame, dongle ? number(s.kbPerFrame, 1) : kDash);
         setCell(m_players, row, ColQ, dongle ? number(s.q, 0) : kDash);
+        setCell(m_players, row, ColEncode, dongle && s.encodeMs > 0.0 ? number(s.encodeMs, 2) : kDash);
         setCell(m_players, row, ColCapacity, dongle && s.capacityKBs > 0 ? number(s.capacityKBs, 0) : kDash);
         setCell(m_players, row, ColDrop, dongle ? number(s.dropPerSec, 1) : kDash);
         setCell(m_players, row, ColQfull, dongle ? number(s.qfullPerSec, 1) : kDash);

@@ -28,6 +28,8 @@
 #include "udp/SlotInput.h"
 
 class ClipPlayer;
+class DongleLink;
+class SlotEncoder;
 class Discovery;
 class DongleManager;
 class UdpInput;
@@ -90,6 +92,7 @@ private:
     ClipPlayer *m_clip = nullptr;
     UdpInput *m_udp = nullptr;
     Discovery *m_discovery = nullptr;
+    SlotEncoder *m_encoders[Settings::Players] = {};
     QStringList m_warnings;
     QString m_portWarning;   // EN: last port change not applied / IT: ultimo cambio di porte non applicato
     bool m_suspended = false;

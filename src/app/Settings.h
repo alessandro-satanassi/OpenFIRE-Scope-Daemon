@@ -23,6 +23,8 @@
 #include <QString>
 #include <QVector>
 
+#include "video/RateControl.h"
+
 // EN: Lightgun USB identity -> player, for the aim point of the screen capture (Raw Input).
 // IT: Identita' USB della lightgun -> giocatore, per il punto di mira della cattura dello schermo (Raw Input).
 struct LightgunMapEntry {
@@ -32,7 +34,7 @@ struct LightgunMapEntry {
 };
 
 // EN: Thread priority of a group of threads. / IT: priorita' di un gruppo di thread.
-enum class ThreadPriority { Normal, AboveNormal };
+enum class ThreadPriority { BelowNormal, Normal, AboveNormal };
 
 // EN: Settings in an INI file (QSettings). Read and written only from the main thread; the other
 //     threads receive copies of the values they need. Command line values override the file for this
@@ -78,6 +80,11 @@ public:
     // EN: threads / IT: thread
     ThreadPriority serialPriority() const;      // above normal / sopra il normale
     ThreadPriority udpPriority() const;         // normal / normale
+    ThreadPriority encoderPriority() const;     // normal / normale
+
+    // EN: encoder and cost model of the scope, [encoder] section: estimates to be tuned on the bench.
+    // IT: encoder e modello di costo del mirino, sezione [encoder]: stime da tarare al banco.
+    EncoderConfig encoderConfig() const;
 
     // EN: log / IT: registro
     bool logToFile() const;

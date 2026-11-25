@@ -20,11 +20,23 @@ struct EncodedSlice {
 
 struct EncodedFrame {
     EncodedSlice slices[OF_SCOPE_STRIPS];
+    // EN: generation of the slot when the frame was encoded: the writer drops a frame of an older generation.
+    // IT: generazione dello slot quando il frame e' stato codificato: lo scrittore scarta un frame di una generazione piu' vecchia.
+    quint32 generation = 0;
+    double fps = 30.0;   // EN: frequency chosen for it: a slice write longer than 1/fps is congestion / IT: frequenza scelta: scrivere una fascia per piu' di 1/fps e' congestione
 
     int bytes() const
     {
         int n = 0;
         for (const EncodedSlice &s : slices) n += int(s.data.size());
+        return n;
+    }
+    // EN: bytes on the USB: data plus 4 + 8 bytes of headers for every slice. / IT: byte sulla USB: dati piu' 4 + 8 byte di intestazioni per fascia.
+    int usbBytes() const
+    {
+        int n = 0;
+        for (const EncodedSlice &s : slices)
+            if (!s.data.isEmpty()) n += int(s.data.size()) + OF_USB_HEADER + OF_VIDEO_HEADER;
         return n;
     }
 };

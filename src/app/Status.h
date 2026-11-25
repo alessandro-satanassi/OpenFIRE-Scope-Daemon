@@ -49,6 +49,7 @@ struct SlotStatus {
     double fpsOut = 0.0;
     double kbPerFrame = 0.0;
     double q = 0.0;
+    double encodeMs = 0.0;          // EN: mean encoding time of a frame on the PC / IT: tempo medio di codifica di un frame sul PC
     double capacityKBs = 0.0;       // C
     double dropPerSec = 0.0;
     double qfullPerSec = 0.0;

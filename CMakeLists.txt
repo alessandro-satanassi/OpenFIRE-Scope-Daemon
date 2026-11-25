@@ -56,6 +56,13 @@ set(PROJECT_SOURCES
     src/udp/UdpInput.cpp
     src/udp/Discovery.h
     src/udp/Discovery.cpp
+    src/video/ScopeEncoder.h
+    src/video/ScopeEncoder.cpp
+    src/video/RateControl.h
+    src/video/RateControl.cpp
+    src/video/HiResTimer.h
+    src/video/SlotEncoder.h
+    src/video/SlotEncoder.cpp
     src/ui/TrayIcon.h
     src/ui/TrayIcon.cpp
     src/ui/MainWindow.h
@@ -69,9 +76,9 @@ set(PROJECT_SOURCES
 
 # EN: native code of one system only. / IT: codice nativo di un solo sistema.
 if(WIN32)
-    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp src/udp/NativeUdp_win.cpp)
+    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp src/udp/NativeUdp_win.cpp src/video/HiResTimer_win.cpp)
 else()
-    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp src/udp/NativeUdp_posix.cpp)
+    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp src/udp/NativeUdp_posix.cpp src/video/HiResTimer_posix.cpp)
 endif()
 
 qt_add_executable(OpenFIRE-Scope-Daemon MANUAL_FINALIZATION ${PROJECT_SOURCES})

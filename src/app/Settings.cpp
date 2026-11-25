@@ -35,6 +35,7 @@ const char *kDongleVid       = "dongle/vid";
 const char *kDonglePid       = "dongle/pid";
 const char *kSerialPriority  = "threads/serialPriority";
 const char *kUdpPriority     = "threads/udpPriority";
+const char *kEncoderPriority = "threads/encoderPriority";
 const char *kLogToFile       = "log/toFile";
 const char *kLogFile         = "log/file";
 const char *kWindowGeometry  = "window/geometry";
@@ -48,8 +49,35 @@ ThreadPriority priorityFrom(const QString &text, ThreadPriority fallback)
 {
     if (text.compare(QLatin1String("aboveNormal"), Qt::CaseInsensitive) == 0) return ThreadPriority::AboveNormal;
     if (text.compare(QLatin1String("normal"), Qt::CaseInsensitive) == 0) return ThreadPriority::Normal;
+    if (text.compare(QLatin1String("belowNormal"), Qt::CaseInsensitive) == 0) return ThreadPriority::BelowNormal;
     return fallback;
 }
+
+// EN: keys of the [encoder] section with their default value. / IT: chiavi della sezione [encoder] con il loro valore predefinito.
+struct EncoderKey {
+    const char *key;
+    double EncoderConfig::*value;
+};
+const EncoderKey kEncoderDoubles[] = {
+    { "encoder/motionLow", &EncoderConfig::motionLow },
+    { "encoder/motionHigh", &EncoderConfig::motionHigh },
+    { "encoder/instrPerMcu", &EncoderConfig::instrPerMcu },
+    { "encoder/instrPerCoef", &EncoderConfig::instrPerCoef },
+    { "encoder/instrFixed", &EncoderConfig::instrFixed },
+    { "encoder/cpi", &EncoderConfig::cpi },
+    { "encoder/dmaWaitMs", &EncoderConfig::dmaWaitMs },
+    { "encoder/maxCycleMs", &EncoderConfig::maxCycleMs },
+};
+struct EncoderIntKey {
+    const char *key;
+    int EncoderConfig::*value;
+};
+const EncoderIntKey kEncoderInts[] = {
+    { "encoder/profile30Bytes", &EncoderConfig::profile30 },
+    { "encoder/profile60Bytes", &EncoderConfig::profile60 },
+    { "encoder/qLow", &EncoderConfig::qLow },
+    { "encoder/qHigh", &EncoderConfig::qHigh },
+};
 
 QVector<LightgunMapEntry> defaultLightgunMap()
 {
@@ -68,6 +96,13 @@ Settings::Settings(QObject *parent)
     // IT: scrive una volta le chiavi delle priorita', cosi' sono visibili nell'INI e facili da cambiare.
     if (!m_ini.contains(kSerialPriority)) m_ini.setValue(kSerialPriority, QStringLiteral("aboveNormal"));
     if (!m_ini.contains(kUdpPriority)) m_ini.setValue(kUdpPriority, QStringLiteral("normal"));
+    if (!m_ini.contains(kEncoderPriority)) m_ini.setValue(kEncoderPriority, QStringLiteral("normal"));
+    // EN: the same for the constants of the encoder. / IT: lo stesso per le costanti dell'encoder.
+    const EncoderConfig defaults;
+    for (const EncoderKey &k : kEncoderDoubles)
+        if (!m_ini.contains(QLatin1String(k.key))) m_ini.setValue(QLatin1String(k.key), defaults.*k.value);
+    for (const EncoderIntKey &k : kEncoderInts)
+        if (!m_ini.contains(QLatin1String(k.key))) m_ini.setValue(QLatin1String(k.key), defaults.*k.value);
 }
 
 QString Settings::filePath() const
@@ -219,6 +254,39 @@ ThreadPriority Settings::serialPriority() const
 ThreadPriority Settings::udpPriority() const
 {
     return priorityFrom(m_ini.value(kUdpPriority).toString(), ThreadPriority::Normal);
+}
+
+ThreadPriority Settings::encoderPriority() const
+{
+    return priorityFrom(m_ini.value(kEncoderPriority).toString(), ThreadPriority::Normal);
+}
+
+EncoderConfig Settings::encoderConfig() const
+{
+    // EN: a value missing, not a number or out of range keeps the default. / IT: un valore mancante, non numerico o fuori limite tiene il predefinito.
+    const EncoderConfig defaults;
+    EncoderConfig c;
+    for (const EncoderKey &k : kEncoderDoubles) {
+        bool ok = false;
+        const double v = m_ini.value(QLatin1String(k.key)).toDouble(&ok);
+        if (ok && v >= 0.0 && v < 1e9) c.*k.value = v;
+    }
+    for (const EncoderIntKey &k : kEncoderInts) {
+        bool ok = false;
+        const int v = m_ini.value(QLatin1String(k.key)).toInt(&ok);
+        if (ok && v > 0) c.*k.value = v;
+    }
+    if (c.motionHigh <= c.motionLow) {
+        c.motionLow = defaults.motionLow;
+        c.motionHigh = defaults.motionHigh;
+    }
+    c.profile30 = qBound(2000, c.profile30, 21000);   // EN: 15 slices of 1,412 bytes at most / IT: al massimo 15 fasce da 1.412 byte
+    c.profile60 = qBound(2000, c.profile60, 21000);
+    c.qLow = qBound(1, c.qLow, 100);
+    c.qHigh = qBound(c.qLow, c.qHigh, 100);
+    if (c.cpi <= 0.0) c.cpi = defaults.cpi;
+    if (c.maxCycleMs <= 0.0) c.maxCycleMs = defaults.maxCycleMs;
+    return c;
 }
 
 // ----------------------------------------------------------------- log / registro
