@@ -140,8 +140,10 @@ void DongleLink::run()
             m_nextBootWhoami = now + kBootWhoamiEveryMs;
         }
         if (m_bwActive && now >= m_bwDeadline) finishBandwidthTest(0.0);
-        // EN: slot paused: PAUSE every 200 ms, between two whole frames. / IT: slot in pausa: PAUSE ogni 200 ms, tra due trame intere.
-        if (m_paired && m_videoEnabled && m_source == Source::Paused && now >= m_nextPauseMs) {
+        // EN: slot paused: PAUSE every 200 ms, between two whole frames; the first one waits for the last slice
+        //     of the frame in transmission. / IT: slot in pausa: PAUSE ogni 200 ms, tra due trame intere; il primo
+        //     aspetta l'ultima fascia del frame in trasmissione.
+        if (m_paired && m_videoEnabled && m_source == Source::Paused && now >= m_nextPauseMs && m_txIndex >= m_tx.size()) {
             m_control.append(UsbFrame::control(OF_CMD_PAUSE));
             m_nextPauseMs = now + kPauseEveryMs;
         }
@@ -242,10 +244,15 @@ void DongleLink::takeCommands(qint64 now)
     // IT: prima la sorgente, poi il frame: un frame di una generazione piu' vecchia si scarta.
     if (sourceChanged) {
         if (generation != m_generation) newGeneration(generation);
+        // EN: after a pairing change only the source of the new owner of the slot opens the video: a new
+        //     generation from its encoder, or 0 from the test clip.
+        // IT: dopo un cambio di abbinamento solo la sorgente del nuovo proprietario dello slot riapre il video:
+        //     una generazione nuova dal suo encoder, o 0 dalla clip di prova.
+        if (m_waitNewSource && (generation != m_pairingGeneration || generation == 0)) m_waitNewSource = false;
         if (source == Source::Paused && m_source != Source::Paused) m_nextPauseMs = now;   // EN: the first PAUSE at once / IT: il primo PAUSE subito
         m_source = source;
     }
-    if (frame && frame->generation == m_generation) m_pending = frame;
+    if (frame && frame->generation == m_generation && !m_waitNewSource) m_pending = frame;
 }
 
 void DongleLink::newGeneration(quint32 generation)
@@ -443,6 +450,10 @@ void DongleLink::handleContent(const uint8_t *content, int len, qint64 now)
                 dropVideo();
                 m_lastSent.reset();   // EN: START starts a new session / IT: START apre una sessione nuova
                 clearShown();
+                // EN: a frame of the previous player still on its way must not leave as this one.
+                // IT: un frame del giocatore precedente ancora in arrivo non deve partire come questo.
+                m_waitNewSource = true;
+                m_pairingGeneration = m_generation;
                 m_control.append(UsbFrame::control(OF_CMD_START));
             }
         } else {
@@ -450,6 +461,8 @@ void DongleLink::handleContent(const uint8_t *content, int len, qint64 now)
             dropVideo();
             m_lastSent.reset();
             clearShown();
+            m_waitNewSource = true;
+            m_pairingGeneration = m_generation;
             if (m.kind == ScopeMessage::Unpaired && !m_bwDone) startBandwidthTest(now);
         }
         const int kind = m.kind == ScopeMessage::Boot ? ScopeBoot : m.kind == ScopeMessage::Unpaired ? ScopeUnpaired : ScopePaired;

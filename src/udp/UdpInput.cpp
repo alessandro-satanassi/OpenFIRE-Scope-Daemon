@@ -63,8 +63,10 @@ void UdpInput::startReceiver(Slot &s, std::unique_ptr<NativeUdp> socket)
         s.receiver->requestStop();
         s.receiver.reset();
     }
-    const QThread::Priority prio = m_settings->udpPriority() == ThreadPriority::AboveNormal ? QThread::HighPriority
-                                                                                          : QThread::NormalPriority;
+    const ThreadPriority up = m_settings->udpPriority();
+    const QThread::Priority prio = up == ThreadPriority::AboveNormal ? QThread::HighPriority
+                                 : up == ThreadPriority::BelowNormal ? QThread::LowPriority
+                                                                     : QThread::NormalPriority;
     s.receiver = std::make_unique<UdpReceiver>(std::move(socket), s.input.get(), prio);
     const int player = s.input->player();
     connect(s.receiver.get(), &UdpReceiver::failed, this, [player](const QString &d) {

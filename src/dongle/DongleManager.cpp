@@ -178,8 +178,10 @@ void DongleManager::scan()
 
 void DongleManager::openLink(Entry &e)
 {
-    const QThread::Priority prio = m_settings->serialPriority() == ThreadPriority::AboveNormal ? QThread::HighPriority
-                                                                                             : QThread::NormalPriority;
+    const ThreadPriority sp = m_settings->serialPriority();
+    const QThread::Priority prio = sp == ThreadPriority::AboveNormal ? QThread::HighPriority
+                                 : sp == ThreadPriority::BelowNormal ? QThread::LowPriority
+                                                                     : QThread::NormalPriority;
     e.link = std::make_unique<DongleLink>(e.location, prio);
     e.linkId = m_nextLinkId++;
     // EN: Busy and AccessDenied (and their reason) stay until the port really opens: no repeated warning.
@@ -430,12 +432,22 @@ void DongleManager::updateVideoEnabled()
         if (m_source == SourceKind::Clip || m_clipEnded) e.link->setSource(m_source == SourceKind::Clip ? DongleLink::Source::Live : DongleLink::Source::None, 0);
     }
     m_clipEnded = false;
+    // EN: two passes: first every slot whose link changes lets it go, then the new links are given. So a dongle
+    //     that moves to another player is never used by two encoders at the same time.
+    // IT: due passaggi: prima ogni slot il cui collegamento cambia lo lascia, poi si danno i collegamenti nuovi.
+    //     Cosi' un dongle che passa a un altro giocatore non e' mai usato da due encoder insieme.
+    DongleLink *wanted[Settings::Players] = {};
     for (int p = 1; p <= Settings::Players; ++p) {
         Entry *e = slotOwner(p);
-        DongleLink *link = (e && e->link && e->state == State::Paired) ? e->link.get() : nullptr;
-        if (link == m_slotLink[p - 1]) continue;
-        m_slotLink[p - 1] = link;
-        if (m_slotLinkHandler) m_slotLinkHandler(p, link);
+        wanted[p - 1] = (e && e->link && e->state == State::Paired) ? e->link.get() : nullptr;
+        if (wanted[p - 1] == m_slotLink[p - 1] || !m_slotLink[p - 1]) continue;
+        m_slotLink[p - 1] = nullptr;
+        if (m_slotLinkHandler) m_slotLinkHandler(p, nullptr);
+    }
+    for (int p = 1; p <= Settings::Players; ++p) {
+        if (wanted[p - 1] == m_slotLink[p - 1]) continue;
+        m_slotLink[p - 1] = wanted[p - 1];
+        if (m_slotLinkHandler) m_slotLinkHandler(p, wanted[p - 1]);
     }
 }
 

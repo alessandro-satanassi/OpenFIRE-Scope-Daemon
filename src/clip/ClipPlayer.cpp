@@ -32,11 +32,13 @@ bool ClipPlayer::load(const QString &path, QString *error)
         return false;
     }
     const int frames = p[8] | (p[9] << 8);
-    const int fps = p[10] | (p[11] << 8);
+    const int fileFps = p[10] | (p[11] << 8);
+    const int fps = (fileFps >= 1 && fileFps <= 60) ? fileFps : 30;
     qsizetype pos = 12;
     QVector<EncodedFramePtr> list;
     for (int f = 0; f < frames; ++f) {
         auto frame = std::make_shared<EncodedFrame>();
+        frame->fps = fps;   // EN: for the congestion check of the writer / IT: per il controllo di congestione dello scrittore
         for (int s = 0; s < OF_SCOPE_STRIPS; ++s) {
             if (pos + 3 > size) {
                 *error = tr("%1 is truncated").arg(path);
@@ -60,7 +62,7 @@ bool ClipPlayer::load(const QString &path, QString *error)
         return false;
     }
     m_frames = list;
-    m_fps = (fps >= 1 && fps <= 60) ? fps : 30;
+    m_fps = fps;
     return true;
 }
 

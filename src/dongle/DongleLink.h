@@ -121,6 +121,8 @@ private:
     bool m_videoEnabled = false;
     Source m_source = Source::None;
     quint32 m_generation = 0;
+    bool m_waitNewSource = false;      // EN: pairing changed: frames dropped until the new source / IT: abbinamento cambiato: frame scartati fino alla nuova sorgente
+    quint32 m_pairingGeneration = 0;   // EN: generation at the change / IT: generazione al cambio
     qint64 m_nextPauseMs = 0;
     qint64 m_writeStartMs = 0;
 
