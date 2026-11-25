@@ -8,7 +8,7 @@
 
 The daemon runs in the notification area (the menu bar on macOS). It receives the video of each player from the games over UDP on 127.0.0.1 (or, on Windows, from a screen capture), encodes it and sends it through the USB dongles to the round display of the OpenFIRE scopes. Up to 4 players.
 
-> **Status: in development.** Phase 6: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview of the input and of the output, the video to the scopes (encoder, bandwidth control, pause and resend), on Windows the screen capture around the aim point of each lightgun (DXGI and Raw Input), start at login, suspension asked by the OpenFIRE App, udev rule for Linux.
+> **Status: in development.** Phase 6: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP, discovery on 127.0.0.1:47810, preview of the input and of the output, the video to the scopes (encoder, bandwidth control, pause and resend), on Windows the screen capture around the aim point of each lightgun (DXGI and Raw Input), start at login, suspension by local command, udev rule for Linux.
 
 ## Systems
  - Windows 10 (1809) or later, 64 bit.
@@ -38,8 +38,10 @@ The Preview tab shows, for each player, the **Input** (the frame that enters the
 ## Start at login
 Settings > Advanced > "Start at login" (off by default) starts the daemon in the notification area when the user logs in: on Windows with the `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` key, on Linux with `~/.config/autostart/openfire-scope-daemon.desktop` (it starts the AppImage file), on macOS with `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. If the program is moved, starting it once by hand updates the entry.
 
-## OpenFIRE App
-Before it restarts an ESP32 board, the OpenFIRE App sends `SUSPEND;T=120` to the discovery port: the daemon releases the serial ports, as with "Suspend" in the menu, and resumes by itself after at most 120 s, or before when the App connects to a board again (`RESUME`). Only from 127.0.0.1. A suspension chosen by the user from the menu is never ended by the App.
+## Suspend
+Before updating the firmware of an ESP32 board through USB, choose "Suspend (release the ports)" in the menu: the daemon closes every serial port, so it cannot open the board while it is in the bootloader (there an ESP32 with native USB can have the same USB identity as the dongles). "Resume" opens them again.
+
+A local program can do the same with a UDP datagram to the discovery port, only from 127.0.0.1: `SUSPEND;T=n` releases the ports for n seconds (1-600; `SUSPEND` alone, 120 s), `RESUME` ends it before. Any other text is ignored. A suspension chosen by the user from the menu is never ended by a command.
 
 ## Linux: serial port permissions
 The udev rule `linux/70-openfire-scope.rules` (also in the Linux package, next to the AppImage) lets the logged-in user open the dongles without the `dialout` group and keeps ModemManager away from them. Install it once:
@@ -78,7 +80,7 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
 
 Il demone gira nell'area di notifica (nella barra dei menu su macOS). Riceve il video di ogni giocatore dai giochi via UDP su 127.0.0.1 (oppure, su Windows, da una cattura dello schermo), lo codifica e lo manda tramite i dongle USB al display rotondo dei mirini OpenFIRE. Fino a 4 giocatori.
 
-> **Stato: in sviluppo.** Fase 6: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima dell'ingresso e dell'uscita, il video ai mirini (encoder, controllo di banda, pausa e reinvio), su Windows la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input), avvio all'accesso, sospensione chiesta dall'App OpenFIRE, regola udev per Linux.
+> **Stato: in sviluppo.** Fase 6: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP, discovery su 127.0.0.1:47810, anteprima dell'ingresso e dell'uscita, il video ai mirini (encoder, controllo di banda, pausa e reinvio), su Windows la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input), avvio all'accesso, sospensione con comando locale, regola udev per Linux.
 
 ## Sistemi
  - Windows 10 (1809) o successivo, 64 bit.
@@ -108,8 +110,10 @@ La scheda Anteprima mostra, per ogni giocatore, l'**Ingresso** (il frame che ent
 ## Avvio all'accesso
 Impostazioni > Avanzate > "Avvia all'accesso" (spento in partenza) avvia il demone nell'area di notifica quando l'utente accede: su Windows con la chiave `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, su Linux con `~/.config/autostart/openfire-scope-daemon.desktop` (avvia il file AppImage), su macOS con `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. Se il programma viene spostato, avviarlo una volta a mano aggiorna la voce.
 
-## App OpenFIRE
-Prima di riavviare una scheda ESP32, l'App OpenFIRE manda `SUSPEND;T=120` alla porta di discovery: il demone rilascia le porte seriali, come con "Sospendi" nel menu, e riprende da solo dopo al massimo 120 s, o prima quando l'App si ricollega a una scheda (`RESUME`). Solo da 127.0.0.1. Una sospensione scelta dall'utente dal menu non la chiude mai l'App.
+## Sospensione
+Prima di aggiornare il firmware di una scheda ESP32 via USB, scegliere "Sospendi (rilascia le porte)" nel menu: il demone chiude tutte le porte seriali, così non può aprire la scheda mentre è nel bootloader (lì un ESP32 con USB nativa può avere la stessa identità USB dei dongle). "Riprendi" le riapre.
+
+Un programma locale può fare lo stesso con un datagramma UDP alla porta di discovery, solo da 127.0.0.1: `SUSPEND;T=n` rilascia le porte per n secondi (1-600; `SUSPEND` da solo, 120 s), `RESUME` la chiude prima. Qualsiasi altro testo si ignora. Una sospensione scelta dall'utente dal menu non la chiude mai un comando.
 
 ## Linux: permessi delle porte seriali
 La regola udev `linux/70-openfire-scope.rules` (anche nel pacchetto per Linux, accanto all'AppImage) permette all'utente collegato di aprire i dongle senza il gruppo `dialout` e tiene ModemManager lontano da loro. Si installa una volta:

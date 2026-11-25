@@ -70,14 +70,14 @@ public:
 
     bool isSuspended() const { return m_suspended; }
 
-    // EN: from the OpenFIRE App through the discovery port, before it reboots a board: "SUSPEND;T=n" releases the
-    //     serial ports for n seconds (1-600, "SUSPEND" alone 120), "RESUME" ends it before; anything else is
-    //     ignored. A suspension chosen by the user is never ended by a command; the user can end a suspension of
-    //     the App from the menu.
-    // IT: dall'App OpenFIRE tramite la porta di discovery, prima che riavvii una scheda: "SUSPEND;T=n" rilascia le
+    // EN: from a local program through the discovery port (127.0.0.1 only): "SUSPEND;T=n" releases the serial
+    //     ports for n seconds (1-600, "SUSPEND" alone 120), "RESUME" ends it before; anything else is ignored.
+    //     A suspension chosen by the user is never ended by a command; the user can end the suspension of a
+    //     command from the menu.
+    // IT: da un programma locale tramite la porta di discovery (solo 127.0.0.1): "SUSPEND;T=n" rilascia le
     //     seriali per n secondi (1-600, "SUSPEND" da solo 120), "RESUME" la chiude prima; tutto il resto si
     //     ignora. Una sospensione scelta dall'utente non la chiude mai un comando; l'utente puo' chiudere dal
-    //     menu una sospensione dell'App.
+    //     menu la sospensione di un comando.
     void handleCommand(const QByteArray &command);
 
     // EN: from the settings dialog, before saving: applies the ports all together or none. false: nothing changed,

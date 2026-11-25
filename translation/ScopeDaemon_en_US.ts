@@ -67,7 +67,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+13"/>
         <source>%1 is truncated</source>
         <translation type="unfinished"></translation>
     </message>
@@ -86,7 +86,7 @@
     <name>Daemon</name>
     <message>
         <location filename="../src/app/Daemon.cpp" line="+50"/>
-        <source>Resumed: the time asked for by the OpenFIRE App is over</source>
+        <source>Resumed: the time asked for by the local command is over</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -177,31 +177,31 @@
     </message>
     <message>
         <location line="+6"/>
-        <source>Resumed by the OpenFIRE App</source>
+        <source>Resumed by a local command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Command on the discovery port not valid, ignored: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>The OpenFIRE App asks to suspend: already suspended by the user</source>
+        <location line="+16"/>
+        <source>A local command asks to suspend: already suspended by the user</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>The OpenFIRE App extends the suspension to %1 s</source>
+        <source>A local command extends the suspension to %1 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Suspended by the OpenFIRE App for at most %1 s: serial ports released</source>
+        <source>Suspended by a local command for %1 s: serial ports released</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="-12"/>
+        <source>Command on the discovery port not valid, ignored: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
         <source>Screen capture on</source>
         <translation type="unfinished"></translation>
     </message>
@@ -260,7 +260,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+95"/>
         <source>%1: opened, WHOAMI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -335,7 +335,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+96"/>
         <source>%1 and %2 are on the same channel %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -997,7 +997,7 @@
 <context>
     <name>UdpInput</name>
     <message>
-        <location filename="../src/udp/UdpInput.cpp" line="+71"/>
+        <location filename="../src/udp/UdpInput.cpp" line="+73"/>
         <source>P%1: UDP receive error (%2), the port is opened again</source>
         <translation type="unfinished"></translation>
     </message>

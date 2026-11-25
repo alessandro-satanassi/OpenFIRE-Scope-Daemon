@@ -13,12 +13,12 @@ class Settings;
 // EN: Discovery on 127.0.0.1:47810 (QUdpSocket in the main thread): to "WHOAMI" it answers at once to the
 //     sender with the text given by the daemon, from the state in memory, never touching the serial ports.
 //     Busy port: no discovery, the icon turns yellow and it is tried again every 5 s. A port changed in the
-//     settings that is busy: the old one stays. "SUSPEND;T=n" and "RESUME" (OpenFIRE App) go to the
+//     settings that is busy: the old one stays. "SUSPEND;T=n" and "RESUME" (local programs) go to the
 //     command handler, without an answer.
 // IT: Discovery su 127.0.0.1:47810 (QUdpSocket nel thread principale): a "WHOAMI" risponde subito al
 //     mittente con il testo dato dal demone, dallo stato in memoria, senza mai toccare le seriali.
 //     Porta occupata: niente discovery, l'icona diventa gialla e si riprova ogni 5 s. Una porta cambiata
-//     nelle impostazioni e occupata: resta la vecchia. "SUSPEND;T=n" e "RESUME" (App OpenFIRE) vanno al
+//     nelle impostazioni e occupata: resta la vecchia. "SUSPEND;T=n" e "RESUME" (programmi locali) vanno al
 //     gestore dei comandi, senza risposta.
 class Discovery : public QObject
 {

@@ -67,7 +67,7 @@
         <translation>%1 non è una clip OpenFIRE</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+13"/>
         <source>%1 is truncated</source>
         <translation>%1 è troncato</translation>
     </message>
@@ -86,8 +86,8 @@
     <name>Daemon</name>
     <message>
         <location filename="../src/app/Daemon.cpp" line="+50"/>
-        <source>Resumed: the time asked for by the OpenFIRE App is over</source>
-        <translation>Ripreso: il tempo chiesto dall'App OpenFIRE è finito</translation>
+        <source>Resumed: the time asked for by the local command is over</source>
+        <translation>Ripreso: il tempo chiesto dal comando locale è finito</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -177,31 +177,31 @@
     </message>
     <message>
         <location line="+6"/>
-        <source>Resumed by the OpenFIRE App</source>
-        <translation>Ripreso dall'App OpenFIRE</translation>
+        <source>Resumed by a local command</source>
+        <translation>Ripreso da un comando locale</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+16"/>
+        <source>A local command asks to suspend: already suspended by the user</source>
+        <translation>Un comando locale chiede di sospendere: già sospeso dall'utente</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>A local command extends the suspension to %1 s</source>
+        <translation>Un comando locale prolunga la sospensione a %1 s</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Suspended by a local command for %1 s: serial ports released</source>
+        <translation>Sospeso da un comando locale per %1 s: porte seriali rilasciate</translation>
+    </message>
+    <message>
+        <location line="-12"/>
         <source>Command on the discovery port not valid, ignored: %1</source>
         <translation>Comando sulla porta di discovery non valido, ignorato: %1</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>The OpenFIRE App asks to suspend: already suspended by the user</source>
-        <translation>L'App OpenFIRE chiede di sospendere: già sospeso dall'utente</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>The OpenFIRE App extends the suspension to %1 s</source>
-        <translation>L'App OpenFIRE prolunga la sospensione a %1 s</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Suspended by the OpenFIRE App for at most %1 s: serial ports released</source>
-        <translation>Sospeso dall'App OpenFIRE per al massimo %1 s: porte seriali rilasciate</translation>
-    </message>
-    <message>
-        <location line="+25"/>
+        <location line="+37"/>
         <source>Screen capture on</source>
         <translation>Cattura dello schermo accesa</translation>
     </message>
@@ -260,7 +260,7 @@
         <translation>%1: scollegata</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+95"/>
         <source>%1: opened, WHOAMI</source>
         <translation>%1: aperta, WHOAMI</translation>
     </message>
@@ -335,7 +335,7 @@
         <translation>%1: il mirino P%2 prende il posto</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+96"/>
         <source>%1 and %2 are on the same channel %3</source>
         <translation>%1 e %2 sono sullo stesso canale %3</translation>
     </message>
@@ -998,7 +998,7 @@
 <context>
     <name>UdpInput</name>
     <message>
-        <location filename="../src/udp/UdpInput.cpp" line="+71"/>
+        <location filename="../src/udp/UdpInput.cpp" line="+73"/>
         <source>P%1: UDP receive error (%2), the port is opened again</source>
         <translation>P%1: errore di ricezione UDP (%2), la porta si riapre</translation>
     </message>

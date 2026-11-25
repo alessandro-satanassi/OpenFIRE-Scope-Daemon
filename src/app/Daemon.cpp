@@ -47,7 +47,7 @@ Daemon::Daemon(Settings *settings, QObject *parent)
     m_resumeTimer = new QTimer(this);
     m_resumeTimer->setSingleShot(true);
     connect(m_resumeTimer, &QTimer::timeout, this, [this]() {
-        endCommandSuspend(tr("Resumed: the time asked for by the OpenFIRE App is over"));
+        endCommandSuspend(tr("Resumed: the time asked for by the local command is over"));
     });
 
     // EN: one encoder per slot, running while the slot has a paired scope; with the test clip they stay off.
@@ -258,7 +258,7 @@ QString Daemon::summary() const
 
 void Daemon::setSuspended(bool suspended)
 {
-    // EN: a choice of the user ends the suspension of the App (and its timer). / IT: una scelta dell'utente chiude la sospensione dell'App (e il suo timer).
+    // EN: a choice of the user ends the suspension of a command (and its timer). / IT: una scelta dell'utente chiude la sospensione di un comando (e il suo timer).
     if (m_commandSuspend) {
         m_commandSuspend = false;
         m_resumeTimer->stop();
@@ -269,7 +269,7 @@ void Daemon::setSuspended(bool suspended)
 void Daemon::handleCommand(const QByteArray &command)
 {
     if (command == "RESUME") {
-        if (m_commandSuspend) endCommandSuspend(tr("Resumed by the OpenFIRE App"));
+        if (m_commandSuspend) endCommandSuspend(tr("Resumed by a local command"));
         return;
     }
     // EN: only "SUSPEND" (120 s) or "SUSPEND;T=n" with n from 1 to 600 s; anything else is ignored.
@@ -285,13 +285,13 @@ void Daemon::handleCommand(const QByteArray &command)
         seconds = value;
     }
     if (m_suspended && !m_commandSuspend) {
-        Log::info(tr("The OpenFIRE App asks to suspend: already suspended by the user"));
+        Log::info(tr("A local command asks to suspend: already suspended by the user"));
         return;
     }
     m_commandSuspend = true;
     m_resumeTimer->start(seconds * 1000);
-    if (m_suspended) Log::info(tr("The OpenFIRE App extends the suspension to %1 s").arg(seconds));
-    else applySuspended(true, tr("Suspended by the OpenFIRE App for at most %1 s: serial ports released").arg(seconds));
+    if (m_suspended) Log::info(tr("A local command extends the suspension to %1 s").arg(seconds));
+    else applySuspended(true, tr("Suspended by a local command for %1 s: serial ports released").arg(seconds));
 }
 
 void Daemon::endCommandSuspend(const QString &logText)
