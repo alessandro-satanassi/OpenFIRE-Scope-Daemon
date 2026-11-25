@@ -44,6 +44,14 @@ EncodedFramePtr DongleLink::shownFrame() const
     return m_shown;
 }
 
+void DongleLink::clearShown()
+{
+    // EN: another player or no pairing: the preview must not show the frame of the previous one.
+    // IT: un altro giocatore o nessun abbinamento: l'anteprima non deve mostrare il frame del precedente.
+    QMutexLocker lock(&m_shownMutex);
+    m_shown.reset();
+}
+
 void DongleLink::requestStop()
 {
     m_stop.store(true);
@@ -434,12 +442,14 @@ void DongleLink::handleContent(const uint8_t *content, int len, qint64 now)
                 if (m_bwActive) finishBandwidthTest(0.0);
                 dropVideo();
                 m_lastSent.reset();   // EN: START starts a new session / IT: START apre una sessione nuova
+                clearShown();
                 m_control.append(UsbFrame::control(OF_CMD_START));
             }
         } else {
             m_paired = false;
             dropVideo();
             m_lastSent.reset();
+            clearShown();
             if (m.kind == ScopeMessage::Unpaired && !m_bwDone) startBandwidthTest(now);
         }
         const int kind = m.kind == ScopeMessage::Boot ? ScopeBoot : m.kind == ScopeMessage::Unpaired ? ScopeUnpaired : ScopePaired;

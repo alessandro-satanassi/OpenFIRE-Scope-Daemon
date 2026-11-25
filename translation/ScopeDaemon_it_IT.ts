@@ -181,7 +181,12 @@
         <translation>Ripreso dall'App OpenFIRE</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+10"/>
+        <source>Command on the discovery port not valid, ignored: %1</source>
+        <translation>Comando sulla porta di discovery non valido, ignorato: %1</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>The OpenFIRE App asks to suspend: already suspended by the user</source>
         <translation>L'App OpenFIRE chiede di sospendere: già sospeso dall'utente</translation>
     </message>

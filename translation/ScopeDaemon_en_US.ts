@@ -181,7 +181,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+10"/>
+        <source>Command on the discovery port not valid, ignored: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>The OpenFIRE App asks to suspend: already suspended by the user</source>
         <translation type="unfinished"></translation>
     </message>

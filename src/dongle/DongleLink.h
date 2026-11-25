@@ -86,6 +86,7 @@ private:
     void finishBandwidthTest(double kBps);
     void dropVideo();
     void newGeneration(quint32 generation);
+    void clearShown();
     bool startFrame(const EncodedFramePtr &frame, qint64 now);
     void writeFrame(const QByteArray &frame, Writing kind, qint64 now);
     void updateCredit(qint64 now);

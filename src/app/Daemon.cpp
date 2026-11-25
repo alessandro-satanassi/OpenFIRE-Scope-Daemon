@@ -272,13 +272,17 @@ void Daemon::handleCommand(const QByteArray &command)
         if (m_commandSuspend) endCommandSuspend(tr("Resumed by the OpenFIRE App"));
         return;
     }
-    // EN: "SUSPEND" or "SUSPEND;T=n", n from 1 to 600 s; another or missing value = 120 s.
-    // IT: "SUSPEND" o "SUSPEND;T=n", n da 1 a 600 s; un valore diverso o assente = 120 s.
+    // EN: only "SUSPEND" (120 s) or "SUSPEND;T=n" with n from 1 to 600 s; anything else is ignored.
+    // IT: solo "SUSPEND" (120 s) o "SUSPEND;T=n" con n da 1 a 600 s; tutto il resto si ignora.
     int seconds = 120;
-    if (command.startsWith("SUSPEND;T=")) {
+    if (command != "SUSPEND") {
         bool ok = false;
-        const int value = command.mid(10).toInt(&ok);
-        if (ok && value >= 1 && value <= 600) seconds = value;
+        const int value = command.startsWith("SUSPEND;T=") ? command.mid(10).toInt(&ok) : 0;
+        if (!ok || value < 1 || value > 600) {
+            Log::warn(tr("Command on the discovery port not valid, ignored: %1").arg(QString::fromLatin1(command.left(64))));
+            return;
+        }
+        seconds = value;
     }
     if (m_suspended && !m_commandSuspend) {
         Log::info(tr("The OpenFIRE App asks to suspend: already suspended by the user"));
