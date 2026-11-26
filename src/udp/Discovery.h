@@ -7,6 +7,8 @@
 #include <QTimer>
 #include <functional>
 
+class QTcpServer;
+class QTcpSocket;
 class QUdpSocket;
 class Settings;
 
@@ -15,11 +17,15 @@ class Settings;
 //     Busy port: no discovery, the icon turns yellow and it is tried again every 5 s. A port changed in the
 //     settings that is busy: the old one stays. "SUSPEND;T=n" and "RESUME" (local programs) go to the
 //     command handler, without an answer.
+//     Also TCP on the same port, for the programs that have only TCP: one request per line (or per write),
+//     the same answer to "WHOAMI" and then the connection is closed; the same commands. TCP port busy: only UDP.
 // IT: Discovery su 127.0.0.1:47810 (QUdpSocket nel thread principale): a "WHOAMI" risponde subito al
 //     mittente con il testo dato dal demone, dallo stato in memoria, senza mai toccare le seriali.
 //     Porta occupata: niente discovery, l'icona diventa gialla e si riprova ogni 5 s. Una porta cambiata
 //     nelle impostazioni e occupata: resta la vecchia. "SUSPEND;T=n" e "RESUME" (programmi locali) vanno al
 //     gestore dei comandi, senza risposta.
+//     Anche TCP sulla stessa porta, per i programmi che hanno solo il TCP: una richiesta per riga (o per scrittura),
+//     la stessa risposta a "WHOAMI" e poi la connessione si chiude; gli stessi comandi. Porta TCP occupata: solo UDP.
 class Discovery : public QObject
 {
     Q_OBJECT
@@ -56,11 +62,16 @@ private:
     bool bindTo(quint16 port, QString *detail);
     void read();
     void retry();
+    void openTcp(quint16 port);
+    void closeTcp();
+    void acceptTcp();
+    void readTcp(QTcpSocket *client);
 
     Settings *m_settings = nullptr;
     std::function<QByteArray()> m_answer;
     CommandHandler m_command;
     QUdpSocket *m_socket = nullptr;
+    QTcpServer *m_tcp = nullptr;      // EN: TCP on the port of m_socket / IT: TCP sulla porta di m_socket
     quint16 m_wanted = 0;
     quint16 m_released = 0;           // EN: port released by releaseOld() / IT: porta rilasciata da releaseOld()
     quint16 m_target = 0;             // EN: port wanted by the change / IT: porta voluta dal cambio

@@ -54,6 +54,9 @@ set(PROJECT_SOURCES
     src/udp/NativeUdp.h
     src/udp/UdpReceiver.h
     src/udp/UdpReceiver.cpp
+    src/udp/NativeTcp.h
+    src/udp/TcpReceiver.h
+    src/udp/TcpReceiver.cpp
     src/udp/UdpInput.h
     src/udp/UdpInput.cpp
     src/udp/Discovery.h
@@ -84,10 +87,10 @@ set(PROJECT_SOURCES
 
 # EN: native code of one system only. / IT: codice nativo di un solo sistema.
 if(WIN32)
-    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp src/udp/NativeUdp_win.cpp src/video/HiResTimer_win.cpp
+    list(APPEND PROJECT_SOURCES resources/icon.rc src/serial/NativeSerial_win.cpp src/udp/NativeUdp_win.cpp src/udp/NativeTcp_win.cpp src/video/HiResTimer_win.cpp
         src/capture/AimInput_win.cpp src/capture/ScreenCapture_win.cpp)
 else()
-    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp src/udp/NativeUdp_posix.cpp src/video/HiResTimer_posix.cpp
+    list(APPEND PROJECT_SOURCES src/serial/NativeSerial_posix.cpp src/udp/NativeUdp_posix.cpp src/udp/NativeTcp_posix.cpp src/video/HiResTimer_posix.cpp
         src/capture/AimInput_posix.cpp src/capture/ScreenCapture_posix.cpp)
 endif()
 
@@ -101,7 +104,7 @@ target_link_libraries(OpenFIRE-Scope-Daemon PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::SerialPort)
 
 if(WIN32)
-    # EN: libraries of the native parts (serial, UDP, timers, DXGI). / IT: librerie delle parti native (seriale, UDP, timer, DXGI).
+    # EN: libraries of the native parts (serial, UDP and TCP, timers, DXGI). / IT: librerie delle parti native (seriale, UDP e TCP, timer, DXGI).
     target_link_libraries(OpenFIRE-Scope-Daemon PRIVATE ws2_32 winmm d3d11 dxgi)
 endif()
 

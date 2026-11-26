@@ -236,6 +236,10 @@
         <source>discovery port %1 is not available (%2)</source>
         <translation>la porta di discovery %1 non è disponibile (%2)</translation>
     </message>
+    <message>
+        <source>Discovery TCP port %1 is not available (%2): discovery only over UDP</source>
+        <translation>Porta TCP di discovery %1 non disponibile (%2): discovery solo in UDP</translation>
+    </message>
 </context>
 <context>
     <name>DongleManager</name>
@@ -962,6 +966,13 @@
     </message>
 </context>
 <context>
+    <name>TcpReceiver</name>
+    <message>
+        <source>P%1: TCP error (%2), video only over UDP until the port is opened again</source>
+        <translation>P%1: errore TCP (%2), video solo in UDP finché la porta non si riapre</translation>
+    </message>
+</context>
+<context>
     <name>TrayIcon</name>
     <message>
         <location filename="../src/ui/TrayIcon.cpp" line="+35"/>
@@ -1035,6 +1046,10 @@
 %1</source>
         <translation>Per alzarlo, esegui una volta in un terminale, poi riavvia il demone:
 %1</translation>
+    </message>
+    <message>
+        <source>P%1: TCP port %2 not available (%3), video only over UDP</source>
+        <translation>P%1: porta TCP %2 non disponibile (%3), video solo in UDP</translation>
     </message>
 </context>
 <context>

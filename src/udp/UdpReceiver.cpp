@@ -2,6 +2,8 @@
 
 #include <cstring>
 
+#include "udp/TcpReceiver.h"
+
 namespace {
 constexpr int kStripPixels = OF_SCOPE_W * OF_SCOPE_STRIP_ROWS;   // 3,840
 constexpr quint16 kFullMask = (1u << OF_SCOPE_STRIPS) - 1;         // 0x7FFF
@@ -64,7 +66,26 @@ UdpReceiver::UdpReceiver(std::unique_ptr<NativeUdp> socket, SlotInput *slot, QTh
 UdpReceiver::~UdpReceiver()
 {
     requestStop();
+    m_tcp.reset();
     wait();   // EN: at most 250 ms, the receive timeout / IT: al massimo 250 ms, il timeout di ricezione
+}
+
+void UdpReceiver::requestStop()
+{
+    m_stop.store(true);
+    if (m_tcp) m_tcp->requestStop();
+}
+
+void UdpReceiver::attachTcp(std::unique_ptr<NativeTcp> listener)
+{
+    m_tcp = std::make_unique<TcpReceiver>(std::move(listener), this, m_slot, m_priority);
+    m_tcp->start();
+}
+
+void UdpReceiver::feed(const uint8_t *p, int n, qint64 now)
+{
+    std::lock_guard<std::mutex> lock(m_handleMutex);
+    handle(p, n, now);
 }
 
 void UdpReceiver::run()
@@ -78,7 +99,7 @@ void UdpReceiver::run()
             emit failed(detail);
             break;
         }
-        if (n > 0) handle(buf, n, monotonicMs());
+        if (n > 0) feed(buf, n, monotonicMs());
     }
     m_socket->close();
 }

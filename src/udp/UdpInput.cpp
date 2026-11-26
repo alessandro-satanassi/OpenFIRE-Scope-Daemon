@@ -2,6 +2,7 @@
 
 #include "app/Log.h"
 #include "app/Settings.h"
+#include "udp/NativeTcp.h"
 #include "udp/NativeUdp.h"
 #include "udp/UdpReceiver.h"
 
@@ -72,6 +73,14 @@ void UdpInput::startReceiver(Slot &s, std::unique_ptr<NativeUdp> socket)
     connect(s.receiver.get(), &UdpReceiver::failed, this, [player](const QString &d) {
         Log::error(tr("P%1: UDP receive error (%2), the port is opened again").arg(player).arg(d));
     });
+    // EN: TCP layer on the same port; if it is busy only TCP is missing, the UDP works as always.
+    // IT: livello TCP sulla stessa porta; se e' occupata manca solo il TCP, l'UDP funziona come sempre.
+    auto tcp = std::make_unique<NativeTcp>();
+    QString tcpDetail;
+    if (tcp->listen(s.receiver->port(), &tcpDetail) == NativeTcp::BindResult::Ok)
+        s.receiver->attachTcp(std::move(tcp));
+    else
+        Log::warn(tr("P%1: TCP port %2 not available (%3), video only over UDP").arg(player).arg(s.receiver->port()).arg(tcpDetail));
     s.receiver->start();
 }
 

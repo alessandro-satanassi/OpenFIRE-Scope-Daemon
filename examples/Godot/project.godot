@@ -1,0 +1,21 @@
+; Example project of the OpenFIRE scopes for Godot 4.1 or later.
+; Open this folder with the Godot editor, or run it: godot --path .
+; Only the folder "openfire_scope" is needed in your own game.
+
+config_version=5
+
+[application]
+
+config/name="OpenFIRE scope example"
+run/main_scene="res://example_main.tscn"
+config/features=PackedStringArray("4.1")
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

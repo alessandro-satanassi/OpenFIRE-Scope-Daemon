@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A console example. The library itself (../OpenFIREScope.cs) targets .NET Standard 2.0 and works in any
+       .NET project; here it is simply compiled together with Program.cs. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>OpenFIREScopeExample</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../OpenFIREScope.cs" />
+  </ItemGroup>
+</Project>

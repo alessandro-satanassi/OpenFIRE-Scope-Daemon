@@ -1,0 +1,10 @@
+{
+	"plugin": {
+		"name": "openfire_scope",
+		"description": "OpenFIRE scope: the scope screen of the game on the OpenFIRE scope",
+		"version": "1.0.0",
+		"author": "Alessandro Satanassi, Team OpenFIRE",
+		"type": "plugin",
+		"start": "false"
+	}
+}

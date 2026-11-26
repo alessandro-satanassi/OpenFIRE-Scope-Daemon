@@ -236,6 +236,10 @@
         <source>discovery port %1 is not available (%2)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Discovery TCP port %1 is not available (%2): discovery only over UDP</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DongleManager</name>
@@ -961,6 +965,13 @@
     </message>
 </context>
 <context>
+    <name>TcpReceiver</name>
+    <message>
+        <source>P%1: TCP error (%2), video only over UDP until the port is opened again</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrayIcon</name>
     <message>
         <location filename="../src/ui/TrayIcon.cpp" line="+35"/>
@@ -1032,6 +1043,10 @@
         <location line="+4"/>
         <source>To raise it, run once in a terminal, then start the daemon again:
 %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>P%1: TCP port %2 not available (%3), video only over UDP</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
