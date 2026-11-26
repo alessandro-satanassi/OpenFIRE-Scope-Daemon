@@ -113,11 +113,13 @@ bool TcpReceiver::headerDone(qint64 now)
 
 void TcpReceiver::frameDone(qint64 now)
 {
+    const quint64 published = m_slot->framesComplete.load();
     for (int strip = 0; strip < OF_SCOPE_STRIPS; ++strip) {
         uint8_t *packet = m_packets.get() + size_t(strip) * (OF_UDP_HEADER + m_stripBytes);
         std::memcpy(packet, m_header, OF_UDP_HEADER);
         packet[8] = uint8_t(strip);
         m_target->feed(packet, OF_UDP_HEADER + m_stripBytes, now);
     }
-    m_slot->tcpFrameMs.store(now);   // EN: SRC=TCP in the discovery / IT: SRC=TCP nel discovery
+    // EN: SRC=TCP only for a frame that was published / IT: SRC=TCP solo per un frame pubblicato
+    if (m_slot->framesComplete.load() != published) m_slot->tcpFrameMs.store(now);
 }
