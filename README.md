@@ -4,6 +4,10 @@
   <a href="#english-version"><img src="docs/img/gb.png" width="20" alt="English"> English Version</a> &nbsp;•&nbsp; <a href="#versione-italiana"><img src="docs/img/it.png" width="20" alt="Italiano"> Versione Italiana</a>
 </p>
 
+<p align="center">
+  <img src="resources/openfire.png" alt="OpenFIRE Scope Daemon" width="112">
+</p>
+
 # OpenFIRE Scope Daemon
 
 ### Video from the PC to the OpenFIRE scopes.
@@ -11,6 +15,16 @@
 The daemon runs in the notification area (the menu bar on macOS). It receives the video of each player from the games over UDP or TCP on 127.0.0.1 (or, on Windows, from a screen capture), encodes it and sends it through the USB dongles to the round display of the OpenFIRE scopes. Up to 4 players.
 
 > **Status: in development.** Phase 6: tray icon, window, settings, log, single instance, dongles on the USB serial ports (pairing, channels, USB bandwidth), test clip, video from the games over UDP and TCP, discovery on 127.0.0.1:47810 (UDP and TCP), preview of the input and of the output, the video to the scopes (encoder, bandwidth control, pause and resend), on Windows the screen capture around the aim point of each lightgun (DXGI and Raw Input), start at login, suspension by local command, udev rule for Linux.
+
+## Screenshots
+The Status tab with four paired scopes: for each player the source (UDP or TCP), the frames per second received and sent, and the state of the radio link.
+<p align="center"><img src="docs/img/daemon_status.png" alt="Status tab" width="100%"></p>
+
+The Preview tab (Output): the last frames sent to the dongles, decoded as the scopes do.
+<p align="center"><img src="docs/img/daemon_preview.png" alt="Preview tab" width="524"></p>
+
+The menu of the notification area icon and the screen capture settings (Windows).
+<p align="center"><img src="docs/img/daemon_tray_menu.png" alt="Menu of the notification area icon" width="209" valign="top"> &nbsp; <img src="docs/img/daemon_settings_capture.png" alt="Screen capture settings" width="522" valign="top"></p>
 
 ## Systems
  - Windows 10 (1809) or later, 64 bit.
@@ -93,6 +107,10 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
   <a href="#english-version"><img src="docs/img/gb.png" width="20" alt="English"> English Version</a> &nbsp;•&nbsp; <a href="#versione-italiana"><img src="docs/img/it.png" width="20" alt="Italiano"> Versione Italiana</a>
 </p>
 
+<p align="center">
+  <img src="resources/openfire.png" alt="OpenFIRE Scope Daemon" width="112">
+</p>
+
 # OpenFIRE Scope Daemon
 
 ### Video dal PC ai mirini OpenFIRE.
@@ -100,6 +118,16 @@ GNU General Public License v3.0, see [LICENSE](LICENSE).
 Il demone gira nell'area di notifica (nella barra dei menu su macOS). Riceve il video di ogni giocatore dai giochi via UDP o TCP su 127.0.0.1 (oppure, su Windows, da una cattura dello schermo), lo codifica e lo manda tramite i dongle USB al display rotondo dei mirini OpenFIRE. Fino a 4 giocatori.
 
 > **Stato: in sviluppo.** Fase 6: icona nell'area di notifica, finestra, impostazioni, registro, istanza unica, dongle sulle porte seriali USB (abbinamento, canali, banda USB), clip di prova, video dai giochi in UDP e TCP, discovery su 127.0.0.1:47810 (UDP e TCP), anteprima dell'ingresso e dell'uscita, il video ai mirini (encoder, controllo di banda, pausa e reinvio), su Windows la cattura dello schermo attorno al punto di mira di ogni lightgun (DXGI e Raw Input), avvio all'accesso, sospensione con comando locale, regola udev per Linux.
+
+## Immagini
+La scheda Stato con quattro mirini abbinati: per ogni giocatore la sorgente (UDP o TCP), i frame al secondo ricevuti e inviati e lo stato del collegamento radio.
+<p align="center"><img src="docs/img/daemon_status.png" alt="Scheda Stato" width="100%"></p>
+
+La scheda Anteprima (Uscita): gli ultimi frame inviati ai dongle, decodificati come fanno i mirini.
+<p align="center"><img src="docs/img/daemon_preview.png" alt="Scheda Anteprima" width="524"></p>
+
+Il menu dell'icona nell'area di notifica e le impostazioni della cattura dello schermo (Windows).
+<p align="center"><img src="docs/img/daemon_tray_menu.png" alt="Menu dell'icona nell'area di notifica" width="209" valign="top"> &nbsp; <img src="docs/img/daemon_settings_capture.png" alt="Impostazioni della cattura dello schermo" width="522" valign="top"></p>
 
 ## Sistemi
  - Windows 10 (1809) o successivo, 64 bit.
