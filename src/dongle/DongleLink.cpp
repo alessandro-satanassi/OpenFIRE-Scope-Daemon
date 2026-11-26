@@ -77,12 +77,13 @@ void DongleLink::setVideoEnabled(bool on)
     m_serial.wake();
 }
 
-void DongleLink::setSource(Source source, quint32 generation)
+void DongleLink::setSource(Source source, quint32 generation, int player)
 {
     {
         QMutexLocker lock(&m_cmdMutex);
         m_cmdSource = source;
         m_cmdGeneration = generation;
+        m_cmdPlayer = player;
         m_cmdSourceChanged = true;
     }
     m_serial.wake();
@@ -143,7 +144,8 @@ void DongleLink::run()
         // EN: slot paused: PAUSE every 200 ms, between two whole frames; the first one waits for the last slice
         //     of the frame in transmission. / IT: slot in pausa: PAUSE ogni 200 ms, tra due trame intere; il primo
         //     aspetta l'ultima fascia del frame in trasmissione.
-        if (m_paired && m_videoEnabled && m_source == Source::Paused && now >= m_nextPauseMs && m_txIndex >= m_tx.size()) {
+        // EN: not while the source of the new player is awaited. / IT: non mentre si aspetta la sorgente del nuovo giocatore.
+        if (m_paired && m_videoEnabled && !m_waitNewSource && m_source == Source::Paused && now >= m_nextPauseMs && m_txIndex >= m_tx.size()) {
             m_control.append(UsbFrame::control(OF_CMD_PAUSE));
             m_nextPauseMs = now + kPauseEveryMs;
         }
@@ -220,6 +222,7 @@ void DongleLink::takeCommands(qint64 now)
     bool sourceChanged = false;
     Source source = Source::None;
     quint32 generation = 0;
+    int player = 0;
     {
         QMutexLocker lock(&m_cmdMutex);
         texts.swap(m_cmdTexts);
@@ -230,6 +233,7 @@ void DongleLink::takeCommands(qint64 now)
         sourceChanged = m_cmdSourceChanged;
         source = m_cmdSource;
         generation = m_cmdGeneration;
+        player = m_cmdPlayer;
         m_cmdSourceChanged = false;
     }
     for (const QByteArray &t : texts) m_control.append(UsbFrame::control(t));
@@ -248,7 +252,9 @@ void DongleLink::takeCommands(qint64 now)
         //     generation from its encoder, or 0 from the test clip.
         // IT: dopo un cambio di abbinamento solo la sorgente del nuovo proprietario dello slot riapre il video:
         //     una generazione nuova dal suo encoder, o 0 dalla clip di prova.
-        if (m_waitNewSource && (generation != m_pairingGeneration || generation == 0)) m_waitNewSource = false;
+        // EN: the encoder of the player paired before can still make a new generation until the manager stops it.
+        // IT: l'encoder del giocatore abbinato prima puo' ancora creare una generazione nuova finche' il gestore non lo ferma.
+        if (m_waitNewSource && (generation == 0 || (generation != m_pairingGeneration && player == m_player))) m_waitNewSource = false;
         if (source == Source::Paused && m_source != Source::Paused) m_nextPauseMs = now;   // EN: the first PAUSE at once / IT: il primo PAUSE subito
         m_source = source;
     }
@@ -389,7 +395,8 @@ int DongleLink::nextEventIn(qint64 now) const
         if (missing <= 0.0 || rate <= 0.0) return 0;
         return int(qCeil(missing / rate));
     };
-    if (m_paired && m_videoEnabled) {
+    // EN: as in run(): nothing to wait for while the source of the new player is awaited. / IT: come in run(): niente da attendere mentre si aspetta la sorgente del nuovo giocatore.
+    if (m_paired && m_videoEnabled && !m_waitNewSource) {
         if (m_source == Source::Paused) wait = qMin<qint64>(wait, qMax<qint64>(0, m_nextPauseMs - now));
         if (m_source == Source::Live && m_txIndex >= m_tx.size()) {
             if (m_pending) wait = qMin(wait, creditIn(m_pending));
@@ -448,6 +455,7 @@ void DongleLink::handleContent(const uint8_t *content, int len, qint64 now)
                 // IT: la prova di banda si ferma al confine della trama; START e' una barriera prima di ogni video nuovo.
                 if (m_bwActive) finishBandwidthTest(0.0);
                 dropVideo();
+                m_control.removeAll(UsbFrame::control(OF_CMD_PAUSE));   // EN: PAUSE of the previous player still queued / IT: PAUSE del giocatore precedente ancora in coda
                 m_lastSent.reset();   // EN: START starts a new session / IT: START apre una sessione nuova
                 clearShown();
                 // EN: a frame of the previous player still on its way must not leave as this one.
@@ -459,6 +467,7 @@ void DongleLink::handleContent(const uint8_t *content, int len, qint64 now)
         } else {
             m_paired = false;
             dropVideo();
+            m_control.removeAll(UsbFrame::control(OF_CMD_PAUSE));   // EN: PAUSE of the previous player still queued / IT: PAUSE del giocatore precedente ancora in coda
             m_lastSent.reset();
             clearShown();
             m_waitNewSource = true;

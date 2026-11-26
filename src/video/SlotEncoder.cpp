@@ -118,7 +118,7 @@ void SlotEncoder::run()
             first = false;
             state = kind;
             stateEpoch = epoch;
-            link->setSource(linkSource(state), generation);
+            link->setSource(linkSource(state), generation, m_input->player());
         }
 
         if (now >= statsAt) {

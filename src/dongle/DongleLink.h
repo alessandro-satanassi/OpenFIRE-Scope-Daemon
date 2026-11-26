@@ -47,7 +47,8 @@ public:
     void setVideoEnabled(bool on);                    // EN: owner of its slot / IT: proprietario del suo slot
     // EN: a new generation ends the frame in transmission and drops the one waiting and the copy for the resend.
     // IT: una generazione nuova finisce il frame in trasmissione e scarta quello in attesa e la copia per il reinvio.
-    void setSource(Source source, quint32 generation);
+    // EN: player = slot of the encoder (0 for the test clip) / IT: player = slot dell'encoder (0 per la clip di prova)
+    void setSource(Source source, quint32 generation, int player = 0);
     void submitFrame(const EncodedFramePtr &frame);   // EN: replaces the frame waiting / IT: sostituisce il frame in attesa
 
     // EN: estimated USB capacity C in KB/s, read by the encoder. / IT: capacita' USB stimata C in KB/s, letta dall'encoder.
@@ -105,6 +106,7 @@ private:
     bool m_cmdVideoChanged = false;
     Source m_cmdSource = Source::None;
     quint32 m_cmdGeneration = 0;
+    int m_cmdPlayer = 0;
     bool m_cmdSourceChanged = false;
 
     // EN: state of the link thread only / IT: stato del solo thread del collegamento
