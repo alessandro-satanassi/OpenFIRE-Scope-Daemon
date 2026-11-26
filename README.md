@@ -38,6 +38,14 @@ The Preview tab shows, for each player, the **Input** (the frame that enters the
 ## Start at login
 Settings > Advanced > "Start at login" (off by default) starts the daemon in the notification area when the user logs in: on Windows with the `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` key, on Linux with `~/.config/autostart/openfire-scope-daemon.desktop` (it starts the AppImage file), on macOS with `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. If the program is moved, starting it once by hand updates the entry.
 
+## Screen capture (Windows)
+For a player whose game sends no video, the daemon can capture the game monitor around the aim point. Three ticks decide when:
+- "Allow screen capture" (menu, and Settings > Screen capture; on by default): without it the capture never runs.
+- "Screen capture on" (menu): the capture runs only while this is ticked. It is off at every start of the daemon.
+- Settings > Screen capture > "Start the capture by itself when a player has no video from the game for 500 ms" (off by default): the capture starts by itself, without "Screen capture on".
+
+The video from a game always comes first. A local program can tick and untick "Screen capture on" with `CAPTURE;ON` and `CAPTURE;OFF` to the discovery port (UDP or TCP, only from 127.0.0.1); the answer to `WHOAMI` has `CAP=1` while the capture can run, `CAP=0` otherwise. `CAPTURE;ON` is ignored while the capture is not allowed; while the automatic start is on, "Screen capture on" is not needed (grey in the menu) and `CAPTURE;OFF` does not stop the capture.
+
 ## Suspend
 Before updating the firmware of an ESP32 board through USB, choose "Suspend (release the ports)" in the menu: the daemon closes every serial port, so it cannot open the board while it is in the bootloader (there an ESP32 with native USB can have the same USB identity as the dongles). "Resume" opens them again.
 
@@ -109,6 +117,14 @@ La scheda Anteprima mostra, per ogni giocatore, l'**Ingresso** (il frame che ent
 
 ## Avvio all'accesso
 Impostazioni > Avanzate > "Avvia all'accesso" (spento in partenza) avvia il demone nell'area di notifica quando l'utente accede: su Windows con la chiave `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, su Linux con `~/.config/autostart/openfire-scope-daemon.desktop` (avvia il file AppImage), su macOS con `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. Se il programma viene spostato, avviarlo una volta a mano aggiorna la voce.
+
+## Cattura dello schermo (Windows)
+Per un giocatore il cui gioco non manda video, il demone può catturare il monitor del gioco attorno al punto di mira. Tre spunte decidono quando:
+- "Permetti la cattura dello schermo" (menu, e Impostazioni > Cattura dello schermo; accesa in partenza): senza di essa la cattura non parte mai.
+- "Cattura dello schermo attiva" (menu): la cattura funziona solo mentre è spuntata. È spenta a ogni avvio del demone.
+- Impostazioni > Cattura dello schermo > "Avvia la cattura da sola quando un giocatore non riceve video dal gioco per 500 ms" (spenta in partenza): la cattura parte da sola, senza "Cattura dello schermo attiva".
+
+Il video di un gioco ha sempre la precedenza. Un programma locale può mettere e togliere la spunta "Cattura dello schermo attiva" con `CAPTURE;ON` e `CAPTURE;OFF` alla porta di discovery (UDP o TCP, solo da 127.0.0.1); la risposta a `WHOAMI` ha `CAP=1` mentre la cattura può funzionare, altrimenti `CAP=0`. `CAPTURE;ON` si ignora finché la cattura non è permessa; con l'avvio automatico acceso "Cattura dello schermo attiva" non serve (grigia nel menu) e `CAPTURE;OFF` non ferma la cattura.
 
 ## Sospensione
 Prima di aggiornare il firmware di una scheda ESP32 via USB, scegliere "Sospendi (rilascia le porte)" nel menu: il demone chiude tutte le porte seriali, così non può aprire la scheda mentre è nel bootloader (lì un ESP32 con USB nativa può avere la stessa identità USB dei dongle). "Riprendi" le riapre.

@@ -37,9 +37,13 @@ TrayIcon::TrayIcon(Daemon *daemon, QObject *parent)
     m_menu->addSeparator();
 
     if (Settings::captureSupported()) {
-        m_captureAction = m_menu->addAction(tr("Screen capture"));
+        m_captureAction = m_menu->addAction(tr("Allow screen capture"));
         m_captureAction->setCheckable(true);
         connect(m_captureAction, &QAction::triggered, m_daemon, &Daemon::setCaptureEnabled);
+        // EN: on only while ticked (off at every start), and only if allowed. / IT: accesa solo mentre e' spuntata (spenta a ogni avvio), e solo se permessa.
+        m_captureActiveAction = m_menu->addAction(tr("Screen capture on"));
+        m_captureActiveAction->setCheckable(true);
+        connect(m_captureActiveAction, &QAction::triggered, m_daemon, &Daemon::setCaptureActive);
 
         m_zoomMenu = m_menu->addMenu(tr("Zoom"));
         m_zoomGroup = new QActionGroup(this);
@@ -109,6 +113,8 @@ void TrayIcon::refresh()
     if (m_captureAction) {
         const Settings *s = m_daemon->settings();
         m_captureAction->setChecked(s->captureEnabled());
+        m_captureActiveAction->setChecked(m_daemon->captureActive());
+        m_captureActiveAction->setEnabled(s->captureEnabled() && !s->captureAuto());   // EN: not needed with the automatic start / IT: non serve con l'avvio automatico
         const int zoom = s->captureZoom();
         for (QAction *a : m_zoomGroup->actions()) a->setChecked(a->data().toInt() == zoom);
     }

@@ -202,12 +202,47 @@
     </message>
     <message>
         <location line="+37"/>
-        <source>Screen capture on</source>
+        <source>Screen capture allowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Screen capture off</source>
+        <source>Screen capture not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>A local command asks for the screen capture: not available on this system</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned on by a local command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned off by a local command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The screen capture is not allowed in the settings: it stays off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The automatic start of the capture is on: it still starts by itself for the players without video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -845,7 +880,12 @@
     </message>
     <message>
         <location line="+8"/>
-        <source>Capture the screen when a player has no video from the game</source>
+        <source>Allow the screen capture (for the players without video from the game)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start the capture by itself when a player has no video from the game for 500 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -980,7 +1020,12 @@
     </message>
     <message>
         <location line="+5"/>
-        <source>Screen capture</source>
+        <source>Allow screen capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

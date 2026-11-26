@@ -13,6 +13,12 @@
 namespace {
 constexpr int kRetryMs = 5000;
 constexpr int kMaxRequest = 512;
+
+// EN: the local commands, see Daemon::handleCommand. / IT: i comandi locali, vedi Daemon::handleCommand.
+bool isCommand(const QByteArray &text)
+{
+    return text == "RESUME" || text == "SUSPEND" || text.startsWith("SUSPEND;") || text == "CAPTURE;ON" || text == "CAPTURE;OFF";
+}
 } // namespace
 
 Discovery::Discovery(Settings *settings, std::function<QByteArray()> answer, QObject *parent)
@@ -181,8 +187,7 @@ void Discovery::read()
         }
         // EN: commands only from this PC (the socket is already bound to 127.0.0.1); anything else is ignored.
         // IT: comandi solo da questo PC (il socket e' gia' legato a 127.0.0.1); tutto il resto si ignora.
-        const bool command = text == "RESUME" || text == "SUSPEND" || text.startsWith("SUSPEND;");
-        if (command && request.senderAddress().isLoopback() && m_command) m_command(text);
+        if (isCommand(text) && request.senderAddress().isLoopback() && m_command) m_command(text);
     }
 }
 
@@ -233,7 +238,7 @@ void Discovery::readTcp(QTcpSocket *client)
     QByteArray data = client->peek(client->bytesAvailable());
     const int tail = data.lastIndexOf('\n') + 1;
     const QByteArray rest = data.mid(tail).trimmed();
-    for (const char *request : { OF_CMD_WHOAMI, "RESUME", "SUSPEND" }) {
+    for (const char *request : { OF_CMD_WHOAMI, "RESUME", "SUSPEND", "CAPTURE;ON", "CAPTURE;OFF" }) {
         if (!rest.isEmpty() && rest.size() < int(qstrlen(request)) && QByteArray(request).startsWith(rest)) {
             data.truncate(tail);
             break;
@@ -250,7 +255,6 @@ void Discovery::readTcp(QTcpSocket *client)
         }
         // EN: the server is bound to 127.0.0.1: the commands come only from this PC.
         // IT: il server e' legato a 127.0.0.1: i comandi vengono solo da questo PC.
-        const bool command = text == "RESUME" || text == "SUSPEND" || text.startsWith("SUSPEND;");
-        if (command && m_command) m_command(text);
+        if (isCommand(text) && m_command) m_command(text);
     }
 }

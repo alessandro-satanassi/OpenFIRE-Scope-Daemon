@@ -70,12 +70,21 @@ public:
 
     bool isSuspended() const { return m_suspended; }
 
+    // EN: screen capture: allowed in the settings, then on only while turned on (menu or "CAPTURE;ON", off at
+    //     every start) or, with the option in the settings, by itself. Then only for players without video.
+    // IT: cattura dello schermo: permessa nelle impostazioni, poi accesa solo mentre la si accende (menu o
+    //     "CAPTURE;ON", spenta a ogni avvio) o, con l'opzione nelle impostazioni, da sola. Poi solo per i giocatori senza video.
+    bool captureActive() const { return m_captureActive; }
+    bool captureOn() const;
+
     // EN: from a local program through the discovery port (127.0.0.1 only): "SUSPEND;T=n" releases the serial
-    //     ports for n seconds (1-600, "SUSPEND" alone 120), "RESUME" ends it before; anything else is ignored.
+    //     ports for n seconds (1-600, "SUSPEND" alone 120), "RESUME" ends it before; "CAPTURE;ON" and
+    //     "CAPTURE;OFF" turn the screen capture on and off; anything else is ignored.
     //     A suspension chosen by the user is never ended by a command; the user can end the suspension of a
     //     command from the menu.
     // IT: da un programma locale tramite la porta di discovery (solo 127.0.0.1): "SUSPEND;T=n" rilascia le
-    //     seriali per n secondi (1-600, "SUSPEND" da solo 120), "RESUME" la chiude prima; tutto il resto si
+    //     seriali per n secondi (1-600, "SUSPEND" da solo 120), "RESUME" la chiude prima; "CAPTURE;ON" e
+    //     "CAPTURE;OFF" accendono e spengono la cattura dello schermo; tutto il resto si
     //     ignora. Una sospensione scelta dall'utente non la chiude mai un comando; l'utente puo' chiudere dal
     //     menu la sospensione di un comando.
     void handleCommand(const QByteArray &command);
@@ -89,6 +98,7 @@ public:
 public slots:
     void setSuspended(bool suspended);
     void setCaptureEnabled(bool on);
+    void setCaptureActive(bool on);
     void setCaptureZoom(int zoom);
     void retryPort(const QString &port);
 
@@ -98,6 +108,8 @@ signals:
 
 private:
     void applySettings();
+    void applyCapture();
+    void applyCaptureActive(bool on, const QString &logText);
     void applySuspended(bool suspended, const QString &logText);
     void endCommandSuspend(const QString &logText);
     bool applyPorts(const QVector<quint16> &video, quint16 discovery, QString *failure);
@@ -114,6 +126,7 @@ private:
     AimInput *m_aim = nullptr;
     ScreenCapture *m_capture = nullptr;
     QTimer *m_captureTimer = nullptr;
+    bool m_captureActive = false;   // EN: turned on, off at every start / IT: accesa, spenta a ogni avvio
     quint32 m_captureFlags = 0;   // EN: aim missing and duplicate lightguns, last seen / IT: mira mancante e lightgun doppie, ultime viste
     QStringList m_warnings;
     QString m_portWarning;   // EN: last port change not applied / IT: ultimo cambio di porte non applicato

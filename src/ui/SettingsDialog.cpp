@@ -110,10 +110,17 @@ QWidget *SettingsDialog::buildCaptureTab()
     }
 
     auto *form = new QFormLayout();
-    m_captureEnabled = new QCheckBox(tr("Capture the screen when a player has no video from the game"));
+    m_captureEnabled = new QCheckBox(tr("Allow the screen capture (for the players without video from the game)"));
     m_shownCaptureEnabled = m_settings->captureEnabled();
     m_captureEnabled->setChecked(m_shownCaptureEnabled);
     form->addRow(m_captureEnabled);
+    // EN: without it the capture starts only when it is turned on (menu or "CAPTURE;ON").
+    // IT: senza di essa la cattura parte solo quando la si accende (menu o "CAPTURE;ON").
+    m_captureAuto = new QCheckBox(tr("Start the capture by itself when a player has no video from the game for 500 ms"));
+    m_captureAuto->setChecked(m_settings->captureAuto());
+    m_captureAuto->setEnabled(m_shownCaptureEnabled);
+    connect(m_captureEnabled, &QCheckBox::toggled, m_captureAuto, &QWidget::setEnabled);
+    form->addRow(m_captureAuto);
 
     m_monitor = new QComboBox();
     m_monitor->addItem(tr("Primary monitor"), QString());
@@ -306,6 +313,7 @@ void SettingsDialog::accept()
     if (m_logToFile->isChecked() != m_shownLogToFile) m_settings->setLogToFile(m_logToFile->isChecked());
     if (m_captureEnabled) {
         if (m_captureEnabled->isChecked() != m_shownCaptureEnabled) m_settings->setCaptureEnabled(m_captureEnabled->isChecked());
+        m_settings->setCaptureAuto(m_captureAuto->isChecked());
         m_settings->setCaptureMonitor(m_monitor->currentData().toString());
         m_settings->setCaptureZoom(m_zoom->currentData().toInt());
         m_settings->setLightgunMap(map);

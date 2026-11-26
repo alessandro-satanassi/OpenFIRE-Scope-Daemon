@@ -50,6 +50,7 @@ private:
     QSystemTrayIcon *m_tray = nullptr;
     QMenu *m_menu = nullptr;
     QAction *m_captureAction = nullptr;
+    QAction *m_captureActiveAction = nullptr;
     QMenu *m_zoomMenu = nullptr;
     QActionGroup *m_zoomGroup = nullptr;
     QAction *m_suspendAction = nullptr;

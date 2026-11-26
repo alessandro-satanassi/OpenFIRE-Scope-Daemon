@@ -61,8 +61,12 @@ public:
 
     // EN: screen capture (Windows only) / IT: cattura dello schermo (solo Windows)
     static bool captureSupported();
-    bool captureEnabled() const;
+    bool captureEnabled() const;                // EN: the capture is allowed / IT: la cattura e' permessa
     void setCaptureEnabled(bool on);
+    // EN: the capture starts by itself when a player has no video from the game (default off: only when it is turned on).
+    // IT: la cattura parte da sola quando un giocatore non ha video dal gioco (predefinito spento: solo quando la si accende).
+    bool captureAuto() const;
+    void setCaptureAuto(bool on);
     QString captureMonitor() const;             // empty = primary / vuoto = principale
     void setCaptureMonitor(const QString &name);
     int captureZoom() const;                    // 1..4, default 2

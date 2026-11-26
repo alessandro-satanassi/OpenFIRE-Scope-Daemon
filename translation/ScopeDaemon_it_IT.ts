@@ -202,13 +202,48 @@
     </message>
     <message>
         <location line="+37"/>
-        <source>Screen capture on</source>
+        <source>Screen capture allowed</source>
+        <translation>Cattura dello schermo permessa</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture not allowed</source>
+        <translation>Cattura dello schermo non permessa</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>A local command asks for the screen capture: not available on this system</source>
+        <translation>Un comando locale chiede la cattura dello schermo: non disponibile su questo sistema</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned on by a local command</source>
+        <translation>Cattura dello schermo accesa da un comando locale</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned off by a local command</source>
+        <translation>Cattura dello schermo spenta da un comando locale</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture turned on</source>
         <translation>Cattura dello schermo accesa</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Screen capture off</source>
+        <source>Screen capture turned off</source>
         <translation>Cattura dello schermo spenta</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The screen capture is not allowed in the settings: it stays off</source>
+        <translation>La cattura dello schermo non è permessa nelle impostazioni: resta spenta</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The automatic start of the capture is on: it still starts by itself for the players without video</source>
+        <translation>L'avvio automatico della cattura è acceso: parte comunque da sola per i giocatori senza video</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -846,8 +881,13 @@
     </message>
     <message>
         <location line="+8"/>
-        <source>Capture the screen when a player has no video from the game</source>
-        <translation>Cattura lo schermo quando un giocatore non riceve video dal gioco</translation>
+        <source>Allow the screen capture (for the players without video from the game)</source>
+        <translation>Permetti la cattura dello schermo (per i giocatori senza video dal gioco)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Start the capture by itself when a player has no video from the game for 500 ms</source>
+        <translation>Avvia la cattura da sola quando un giocatore non riceve video dal gioco per 500 ms</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -981,8 +1021,13 @@
     </message>
     <message>
         <location line="+5"/>
-        <source>Screen capture</source>
-        <translation>Cattura dello schermo</translation>
+        <source>Allow screen capture</source>
+        <translation>Permetti la cattura dello schermo</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Screen capture on</source>
+        <translation>Cattura dello schermo attiva</translation>
     </message>
     <message>
         <location line="+4"/>

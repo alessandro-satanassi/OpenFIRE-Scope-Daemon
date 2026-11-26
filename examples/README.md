@@ -93,11 +93,12 @@ freezes or crashes during a pause, the scope shows NO SIGNAL about a second late
 You do not need any code for a game that cannot be changed. On **Windows** the daemon can capture the screen
 around the aim point of each lightgun and send that to the scope: a zoomed view of where the player is aiming.
 
-How to turn it on, in the daemon: **Settings > Screen capture**.
+How to turn it on, in the daemon: **Settings > Screen capture**, then the menu of the tray icon.
 
 | Setting | What to choose |
 | --- | --- |
-| *Capture the screen when a player has no video from the game* | On (it is on by default). |
+| *Allow the screen capture* | On (it is on by default). Without it the capture never runs. |
+| *Start the capture by itself when a player has no video from the game for 500 ms* | On, if the capture must start by itself. Off by default: then tick **Screen capture on** in the menu of the tray icon when you want it (it is off at every start of the daemon), or send `CAPTURE;ON` (see the protocol below). |
 | *Game monitor* | The monitor the game runs on, and the one the lightguns are calibrated on. |
 | *Zoom* | 1x to 4x (default 2x): the daemon cuts a square of 240 / zoom pixels around the aim point and enlarges it to 240 x 240. |
 | *Lightguns (VID:PID → player)* | Which lightgun is which player. The default is the OpenFIRE lightguns, `F143:0001` to `F143:0004` for players 1 to 4; add a row for any other lightgun. |
@@ -149,8 +150,8 @@ settings). The daemon answers to the address and port the request came from, wit
 `\n`:
 
 ```
-OF_SCOPE:P1;PORT=47811;FW=1.0;CH=36;SRC=UDP;FPS=42;Q=61;C=520;DROP=0;QFULL=0
-OF_SCOPE:P3;PORT=47813;FW=1.0;CH=149;SRC=NONE;FPS=0;Q=0;C=450;DROP=0;QFULL=0
+OF_SCOPE:P1;PORT=47811;FW=1.0;CH=36;SRC=UDP;FPS=42;Q=61;C=520;DROP=0;QFULL=0;CAP=0
+OF_SCOPE:P3;PORT=47813;FW=1.0;CH=149;SRC=NONE;FPS=0;Q=0;C=450;DROP=0;QFULL=0;CAP=0
 OF_SCOPE:UNPAIRED;FW=1.0;CH=44
 ```
 
@@ -160,7 +161,10 @@ OF_SCOPE:UNPAIRED;FW=1.0;CH=44
 - Ignore the other fields (they are for diagnostics and more may be added): `SRC` is what the scope is showing now
   (`NONE`, `UDP`, `PAUSE`, `DXGI` screen capture, `CLIP` test clip), `FPS` the frames per second sent to the scope,
   `Q` the compression quality (1 to 100), `C` the estimated bandwidth in KB/s, `DROP` and `QFULL` frames per second
-  dropped on the way.
+  dropped on the way, `CAP` 1 while the screen capture of the daemon can run (Windows), 0 otherwise.
+- To the same port, a program can also send `CAPTURE;ON` and `CAPTURE;OFF`: they tick and untick *Screen capture on*
+  in the daemon (Windows), used for the players without video from the game. No answer. `CAPTURE;ON` is ignored while
+  the user does not allow the capture; while the automatic start is on, the capture starts by itself anyway.
 
 Ask again every second: scopes can be paired, switched off or moved to another player at any time. If the daemon has
 not answered for 3 seconds, consider every scope gone.
@@ -204,7 +208,7 @@ For programs that can open TCP connections but not UDP sockets (a MAME plugin, f
 normal way; the daemon accepts both on the same ports, always on `127.0.0.1`.
 
 - **Discovery:** connect to TCP port 47810 and write `WHOAMI`. The daemon writes the same answer as over UDP, then
-  closes the connection: read until it closes. `SUSPEND` and `RESUME` work too. One request per line (or per write).
+  closes the connection: read until it closes. `SUSPEND`, `RESUME`, `CAPTURE;ON` and `CAPTURE;OFF` work too. One request per line (or per write).
 - **Video:** connect to the `PORT` of the answer (TCP, the same number as the UDP port) and write, for every image,
   the same 16-byte header followed by **all** the 240 x 240 pixels in one go: 16 + 240 x 240 x 3 = **172816** bytes
   for RGB888, **115216** for RGB565, **230416** for BGRX8888. There is no length field: the length comes from the

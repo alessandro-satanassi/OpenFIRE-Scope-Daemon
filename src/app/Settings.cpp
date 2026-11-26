@@ -28,6 +28,7 @@ namespace {
 const char *kDiscoveryPort   = "network/discoveryPort";
 const char *kVideoPort       = "network/videoPortP%1";
 const char *kCaptureEnabled  = "capture/enabled";
+const char *kCaptureAuto     = "capture/auto";
 const char *kCaptureMonitor  = "capture/monitor";
 const char *kCaptureZoom     = "capture/zoom";
 const char *kLightgunMap     = "capture/lightgunMap";
@@ -154,6 +155,16 @@ void Settings::setCaptureEnabled(bool on)
 {
     m_captureOffOverride = false;
     m_ini.setValue(kCaptureEnabled, on);
+}
+
+bool Settings::captureAuto() const
+{
+    return m_ini.value(kCaptureAuto, false).toBool();
+}
+
+void Settings::setCaptureAuto(bool on)
+{
+    m_ini.setValue(kCaptureAuto, on);
 }
 
 QString Settings::captureMonitor() const

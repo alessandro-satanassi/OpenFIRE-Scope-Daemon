@@ -56,6 +56,7 @@ private:
     PortApplier m_applyPorts;
     QSpinBox *m_videoPort[Settings::Players] = {};
     QCheckBox *m_captureEnabled = nullptr;
+    QCheckBox *m_captureAuto = nullptr;
     QComboBox *m_monitor = nullptr;
     QComboBox *m_zoom = nullptr;
     QTableWidget *m_lightguns = nullptr;

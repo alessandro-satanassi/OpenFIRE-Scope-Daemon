@@ -138,7 +138,7 @@ void Daemon::applySettings()
                                             : ep == ThreadPriority::BelowNormal ? QThread::LowPriority
                                                                                  : QThread::NormalPriority;
     for (SlotEncoder *e : m_encoders) e->setConfig(m_settings->encoderConfig(), encoderPriority);
-    m_capture->configure(m_settings->captureEnabled(), m_settings->captureMonitor(), m_settings->captureZoom());
+    applyCapture();
     m_aim->setMap(m_settings->lightgunMap());
     // EN: normally nothing changes here: the dialog has already applied the ports before saving them.
     // IT: di norma qui non cambia nulla: la finestra ha gia' applicato le porte prima di salvarle.
@@ -268,6 +268,15 @@ void Daemon::setSuspended(bool suspended)
 
 void Daemon::handleCommand(const QByteArray &command)
 {
+    if (command == "CAPTURE;ON" || command == "CAPTURE;OFF") {
+        if (!Settings::captureSupported()) {
+            Log::info(tr("A local command asks for the screen capture: not available on this system"));
+            return;
+        }
+        const bool on = command == "CAPTURE;ON";
+        applyCaptureActive(on, on ? tr("Screen capture turned on by a local command") : tr("Screen capture turned off by a local command"));
+        return;
+    }
     if (command == "RESUME") {
         if (m_commandSuspend) endCommandSuspend(tr("Resumed by a local command"));
         return;
@@ -316,8 +325,41 @@ void Daemon::setCaptureEnabled(bool on)
 {
     if (!Settings::captureSupported()) return;
     m_settings->setCaptureEnabled(on);
-    Log::info(on ? tr("Screen capture on") : tr("Screen capture off"));
+    Log::info(on ? tr("Screen capture allowed") : tr("Screen capture not allowed"));
     m_settings->notifyChanged();
+}
+
+void Daemon::setCaptureActive(bool on)
+{
+    if (!Settings::captureSupported()) return;
+    applyCaptureActive(on, on ? tr("Screen capture turned on") : tr("Screen capture turned off"));
+}
+
+void Daemon::applyCaptureActive(bool on, const QString &logText)
+{
+    // EN: as in the menu, where the item is grey: while not allowed, "on" is ignored (it must not start later, when allowed).
+    // IT: come nel menu, dove la voce e' grigia: finche' non e' permessa, "accesa" si ignora (non deve partire dopo, quando permessa).
+    if (on && !m_settings->captureEnabled()) {
+        Log::warn(tr("The screen capture is not allowed in the settings: it stays off"));
+        return;
+    }
+    if (m_captureActive == on) return;
+    m_captureActive = on;
+    Log::info(logText);
+    if (!on && m_settings->captureAuto())
+        Log::info(tr("The automatic start of the capture is on: it still starts by itself for the players without video"));
+    applyCapture();
+    emit statusChanged();
+}
+
+bool Daemon::captureOn() const
+{
+    return m_settings->captureEnabled() && (m_captureActive || m_settings->captureAuto());
+}
+
+void Daemon::applyCapture()
+{
+    m_capture->configure(captureOn(), m_settings->captureMonitor(), m_settings->captureZoom());
 }
 
 void Daemon::setCaptureZoom(int zoom)
@@ -385,6 +427,7 @@ QByteArray Daemon::discoveryAnswer() const
         line += ";C=" + QByteArray::number(qRound(s.capacityKBs));
         line += ";DROP=" + QByteArray::number(qRound(s.dropPerSec));
         line += ";QFULL=" + QByteArray::number(qRound(s.qfullPerSec));
+        line += captureOn() ? ";CAP=1" : ";CAP=0";
         lines << line;
     }
     for (const DeviceStatus &d : devices()) {
