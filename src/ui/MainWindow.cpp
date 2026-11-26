@@ -529,7 +529,7 @@ void MainWindow::showAbout()
     QMessageBox::about(this, tr("About"),
         tr("<h3>OpenFIRE Scope Daemon %1</h3>"
            "<p>Video from the PC to the OpenFIRE scopes.</p>"
-           "<p>Team OpenFIRE. License GPL v3.</p>"
+           "<p>Alessandro Satanassi. License GPL v3.</p>"
            "<p>Qt %2</p>").arg(version, QString::fromLatin1(qVersion())));
 }
 

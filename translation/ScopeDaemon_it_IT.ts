@@ -767,8 +767,8 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>&lt;h3&gt;OpenFIRE Scope Daemon %1&lt;/h3&gt;&lt;p&gt;Video from the PC to the OpenFIRE scopes.&lt;/p&gt;&lt;p&gt;Team OpenFIRE. License GPL v3.&lt;/p&gt;&lt;p&gt;Qt %2&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;OpenFIRE Scope Daemon %1&lt;/h3&gt;&lt;p&gt;Video dal PC ai mirini OpenFIRE.&lt;/p&gt;&lt;p&gt;Team OpenFIRE. Licenza GPL v3.&lt;/p&gt;&lt;p&gt;Qt %2&lt;/p&gt;</translation>
+        <source>&lt;h3&gt;OpenFIRE Scope Daemon %1&lt;/h3&gt;&lt;p&gt;Video from the PC to the OpenFIRE scopes.&lt;/p&gt;&lt;p&gt;Alessandro Satanassi. License GPL v3.&lt;/p&gt;&lt;p&gt;Qt %2&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;OpenFIRE Scope Daemon %1&lt;/h3&gt;&lt;p&gt;Video dal PC ai mirini OpenFIRE.&lt;/p&gt;&lt;p&gt;Alessandro Satanassi. Licenza GPL v3.&lt;/p&gt;&lt;p&gt;Qt %2&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
