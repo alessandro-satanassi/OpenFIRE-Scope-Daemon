@@ -38,7 +38,7 @@ Each player has a video port on 127.0.0.1, by default 47811-47814 for P1-P4; the
 `of_test_sender` (built with the daemon, in the build folder) sends animated test images to the daemon over UDP, as a game would. It takes the ports from the discovery, otherwise it uses 47811-47814. Examples: `of_test_sender` (4 players, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` lists every option. The images appear in the Preview tab and reach the paired scopes.
 
 ## Preview
-The Preview tab shows, for each player, the **Input** (the frame that enters the daemon, before the encoder) or the **Output** (the last frame sent whole to the scope, decoded with the decoder of the scope firmware: what the scope receives). The images are made only while the window is visible and "Show preview" is ticked.
+The Preview tab shows, for each player, the **Input** (the frame that enters the daemon, before the encoder) or the **Output** (the last frame sent whole to the dongle, decoded with the decoder of the scope firmware: what the scope shows when the radio loses nothing). The images are made only while the window is visible and "Show preview" is ticked.
 
 ## Start at login
 Settings > Advanced > "Start at login" (off by default) starts the daemon in the notification area when the user logs in: on Windows with the `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` key, on Linux with `~/.config/autostart/openfire-scope-daemon.desktop` (it starts the AppImage file), on macOS with `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. If the program is moved, starting it once by hand updates the entry.
@@ -57,15 +57,15 @@ Before updating the firmware of an ESP32 board through USB, choose "Suspend (rel
 A local program can do the same with a command to the discovery port (UDP or TCP, only from 127.0.0.1): `SUSPEND;T=n` releases the ports for n seconds (1-600; `SUSPEND` alone, 120 s), `RESUME` ends it before. Any other text is ignored. A suspension chosen by the user from the menu is never ended by a command.
 
 ## Linux: serial port permissions
-The udev rule `linux/70-openfire-scope.rules` (also in the Linux package, next to the AppImage) lets the logged-in user open the dongles without the `dialout` group and keeps ModemManager away from them. Install it once:
+The udev rule `linux/70-openfire-scope.rules` (in the `linux` folder of the repository and of the Linux package) lets the logged-in user open the dongles without the `dialout` group and keeps ModemManager away from them. Install it once, from the folder that holds the `linux` folder:
 ```
-sudo cp 70-openfire-scope.rules /etc/udev/rules.d/
+sudo cp linux/70-openfire-scope.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 If a dongle shows "access denied", the window also shows a command to run once that writes the same rule.
 
 ## macOS: first start
-The app is not signed. At the first start macOS blocks it: open System Settings > Privacy & Security and click "Open Anyway" next to the message about OpenFIRE Scope Daemon, then confirm. This is needed only once. Alternatively, in the Terminal: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
+The app is not signed. At the first start macOS blocks it: open System Settings > Privacy & Security (on macOS 12: System Preferences > Security & Privacy > General) and click "Open Anyway" next to the message about OpenFIRE Scope Daemon, then confirm. This is needed only once. Alternatively, in the Terminal: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
 
 ## Settings
 The settings are in an INI file:
@@ -127,7 +127,7 @@ Ogni giocatore ha una porta video su 127.0.0.1, in partenza 47811-47814 per P1-P
 `of_test_sender` (compilato insieme al demone, nella cartella di build) manda al demone in UDP immagini di prova animate, come farebbe un gioco. Prende le porte dalla discovery, altrimenti usa 47811-47814. Esempi: `of_test_sender` (4 giocatori, 60 fps, BGRX), `of_test_sender --players 1 --fps 30 --format rgb565`, `of_test_sender --pause-every 5 --pause-for 2 --session-every 20`. `--help` elenca tutte le opzioni. Le immagini compaiono nella scheda Anteprima e arrivano ai mirini abbinati.
 
 ## Anteprima
-La scheda Anteprima mostra, per ogni giocatore, l'**Ingresso** (il frame che entra nel demone, prima dell'encoder) o l'**Uscita** (l'ultimo frame inviato intero al mirino, decodificato con il decoder del firmware del mirino: ciò che riceve il mirino). Le immagini si preparano solo con la finestra visibile e "Mostra anteprima" spuntata.
+La scheda Anteprima mostra, per ogni giocatore, l'**Ingresso** (il frame che entra nel demone, prima dell'encoder) o l'**Uscita** (l'ultimo frame inviato intero al dongle, decodificato con il decoder del firmware del mirino: ciò che mostra il mirino quando la radio non perde niente). Le immagini si preparano solo con la finestra visibile e "Mostra anteprima" spuntata.
 
 ## Avvio all'accesso
 Impostazioni > Avanzate > "Avvia all'accesso" (spento in partenza) avvia il demone nell'area di notifica quando l'utente accede: su Windows con la chiave `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, su Linux con `~/.config/autostart/openfire-scope-daemon.desktop` (avvia il file AppImage), su macOS con `~/Library/LaunchAgents/org.TeamOpenFIRE.ScopeDaemon.plist`. Se il programma viene spostato, avviarlo una volta a mano aggiorna la voce.
@@ -146,15 +146,15 @@ Prima di aggiornare il firmware di una scheda ESP32 via USB, scegliere "Sospendi
 Un programma locale può fare lo stesso con un comando alla porta di discovery (UDP o TCP, solo da 127.0.0.1): `SUSPEND;T=n` rilascia le porte per n secondi (1-600; `SUSPEND` da solo, 120 s), `RESUME` la chiude prima. Qualsiasi altro testo si ignora. Una sospensione scelta dall'utente dal menu non la chiude mai un comando.
 
 ## Linux: permessi delle porte seriali
-La regola udev `linux/70-openfire-scope.rules` (anche nel pacchetto per Linux, accanto all'AppImage) permette all'utente collegato di aprire i dongle senza il gruppo `dialout` e tiene ModemManager lontano da loro. Si installa una volta:
+La regola udev `linux/70-openfire-scope.rules` (nella cartella `linux` del repository e del pacchetto per Linux) permette all'utente collegato di aprire i dongle senza il gruppo `dialout` e tiene ModemManager lontano da loro. Si installa una volta, dalla cartella che contiene la cartella `linux`:
 ```
-sudo cp 70-openfire-scope.rules /etc/udev/rules.d/
+sudo cp linux/70-openfire-scope.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 Se un dongle risulta "accesso negato", la finestra mostra anche un comando da eseguire una volta che scrive la stessa regola.
 
 ## macOS: primo avvio
-L'app non è firmata. Al primo avvio macOS la blocca: aprire Impostazioni di Sistema > Privacy e sicurezza e fare clic su "Apri comunque" accanto al messaggio su OpenFIRE Scope Daemon, poi confermare. Serve una volta sola. In alternativa, nel Terminale: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
+L'app non è firmata. Al primo avvio macOS la blocca: aprire Impostazioni di Sistema > Privacy e sicurezza (su macOS 12: Preferenze di Sistema > Sicurezza e privacy > Generali) e fare clic su "Apri comunque" accanto al messaggio su OpenFIRE Scope Daemon, poi confermare. Serve una volta sola. In alternativa, nel Terminale: `xattr -dr com.apple.quarantine "/Applications/OpenFIRE-Scope-Daemon.app"`.
 
 ## Impostazioni
 Le impostazioni sono in un file INI:
