@@ -80,6 +80,7 @@ public:
     std::atomic<quint64> framesComplete{0};
     std::atomic<quint64> framesIncomplete{0};   // EN: replaced before all 15 strips arrived / IT: sostituiti prima che arrivassero tutte le 15 fasce
     std::atomic<quint64> packetsInvalid{0};
+    std::atomic<qint64> tcpFrameMs{-1};          // EN: latest complete frame over TCP, -1 = none / IT: ultimo frame completo via TCP, -1 = nessuno
 
 private:
     void dropCaptureFrame();

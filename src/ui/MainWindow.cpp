@@ -341,7 +341,7 @@ void MainWindow::refreshStatus()
         QString source;
         switch (s.source) {
         case SourceKind::None:      source = tr("none"); break;
-        case SourceKind::Udp:       source = QStringLiteral("UDP"); break;
+        case SourceKind::Udp:       source = s.tcp ? QStringLiteral("TCP") : QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: source = tr("pause"); break;
         case SourceKind::Dxgi:      source = QStringLiteral("DXGI"); break;
         case SourceKind::Clip:      source = tr("clip"); break;
@@ -428,7 +428,7 @@ void MainWindow::refreshPreview()
         QString source;
         switch (s.source) {
         case SourceKind::None:      source = tr("no source"); break;
-        case SourceKind::Udp:       source = QStringLiteral("UDP"); break;
+        case SourceKind::Udp:       source = s.tcp ? QStringLiteral("TCP") : QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: source = tr("pause"); break;
         case SourceKind::Dxgi:      source = QStringLiteral("DXGI"); break;
         case SourceKind::Clip:      source = tr("clip"); break;

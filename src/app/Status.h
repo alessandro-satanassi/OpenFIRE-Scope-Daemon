@@ -45,6 +45,7 @@ struct SlotStatus {
     QString firmware;
     quint16 udpPort = 0;            // effective port, 0 = not open / porta effettiva, 0 = non aperta
     SourceKind source = SourceKind::None;
+    bool tcp = false;               // EN: Udp source with the frames over TCP / IT: sorgente Udp con i frame via TCP
     double fpsIn = 0.0;
     double fpsOut = 0.0;
     double kbPerFrame = 0.0;

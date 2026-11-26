@@ -240,7 +240,7 @@ QString Daemon::summary() const
         if (s.scope == ScopeState::NoDongle) continue;
         QString src;
         switch (s.source) {
-        case SourceKind::Udp:       src = QStringLiteral("UDP"); break;
+        case SourceKind::Udp:       src = s.tcp ? QStringLiteral("TCP") : QStringLiteral("UDP"); break;
         case SourceKind::UdpPaused: src = tr("pause"); break;
         case SourceKind::Dxgi:      src = QStringLiteral("DXGI"); break;
         case SourceKind::Clip:      src = tr("clip"); break;
@@ -413,7 +413,7 @@ QByteArray Daemon::discoveryAnswer() const
         QByteArray src;
         switch (s.source) {
         case SourceKind::None:      src = "NONE"; break;
-        case SourceKind::Udp:       src = "UDP"; break;
+        case SourceKind::Udp:       src = s.tcp ? "TCP" : "UDP"; break;
         case SourceKind::UdpPaused: src = "PAUSE"; break;
         case SourceKind::Dxgi:      src = "DXGI"; break;
         case SourceKind::Clip:      src = "CLIP"; break;

@@ -159,7 +159,7 @@ OF_SCOPE:UNPAIRED;FW=1.0;CH=44
   of the answer.** It is 47810 + n by default, but the daemon takes other ports when those are busy.
 - `OF_SCOPE:UNPAIRED` : a dongle without a scope. `OF_SCOPE:NONE` : no dongle at all.
 - Ignore the other fields (they are for diagnostics and more may be added): `SRC` is what the scope is showing now
-  (`NONE`, `UDP`, `PAUSE`, `DXGI` screen capture, `CLIP` test clip), `FPS` the frames per second sent to the scope,
+  (`NONE`, `UDP`, `TCP`, `PAUSE`, `DXGI` screen capture, `CLIP` test clip), `FPS` the frames per second sent to the scope,
   `Q` the compression quality (1 to 100), `C` the estimated bandwidth in KB/s, `DROP` and `QFULL` frames per second
   dropped on the way, `CAP` 1 while the screen capture of the daemon can run (Windows), 0 otherwise.
 - To the same port, a program can also send `CAPTURE;ON` and `CAPTURE;OFF`: they tick and untick *Screen capture on*

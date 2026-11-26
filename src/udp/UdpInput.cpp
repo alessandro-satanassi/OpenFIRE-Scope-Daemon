@@ -255,6 +255,8 @@ void UdpInput::fillSlots(QVector<SlotStatus> *slotList) const
         const Slot &s = m_slots[st.player - 1];
         st.udpPort = s.receiver ? s.receiver->port() : 0;
         st.source = s.source;
+        const qint64 tcpMs = s.input->tcpFrameMs.load();
+        st.tcp = s.source == SourceKind::Udp && tcpMs >= 0 && monotonicMs() - tcpMs < SlotInput::SourceTimeoutMs;
         st.fpsIn = s.source == SourceKind::None ? 0.0 : s.fpsIn;
         st.udpIncompletePerSec = s.incompletePerSec;
         st.udpInvalidPerSec = s.invalidPerSec;

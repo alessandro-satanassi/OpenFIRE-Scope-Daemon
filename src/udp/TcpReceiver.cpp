@@ -119,4 +119,5 @@ void TcpReceiver::frameDone(qint64 now)
         packet[8] = uint8_t(strip);
         m_target->feed(packet, OF_UDP_HEADER + m_stripBytes, now);
     }
+    m_slot->tcpFrameMs.store(now);   // EN: SRC=TCP in the discovery / IT: SRC=TCP nel discovery
 }
