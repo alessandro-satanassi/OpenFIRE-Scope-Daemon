@@ -22,6 +22,27 @@ constexpr int kPauseEveryMs = 200;
 constexpr double kMinCapacityKBs = 200.0;
 constexpr int kDecreaseEveryMs = 500;      // EN: C goes down at most once every 500 ms / IT: C scende al massimo una volta ogni 500 ms
 constexpr int kRaiseAfterMs = 5000;        // EN: 5 s without congestion, then +5% per second / IT: 5 s senza congestione, poi +5% al secondo
+// EN: Above the value of the test: C goes on up by 10% per second while the USB is busy less than 60% of the time, then
+//     by 3%, at most to 1000 KB/s (USB Full Speed), only while the frames fill their USB budget and the USB is busy
+//     less than 85% of the time. A step of one second never jumps over the band 85-95%. Busy at least 95% of the time is
+//     congestion, like DROP and QFULL. Between 85% and 95% C stays as it is (hysteresis). Every congestion above
+//     the test doubles the wait before going up again (5 s, 10 s ... 60 s); 60 s without congestion bring it back to 5 s.
+// IT: Sopra il valore della prova: C continua a salire del 10% al secondo finche' la USB e' occupata meno del 60% del
+//     tempo, poi del 3%, al massimo fino a 1000 KB/s (USB Full Speed), solo mentre i frame riempiono il loro budget USB
+//     e la USB e' occupata meno dell'85% del tempo. Un passo di un secondo non salta mai la fascia 85-95%. Occupata almeno
+//     il 95% del tempo e' congestione, come DROP e QFULL. Tra 85% e 95% C resta com'e' (isteresi). Ogni congestione
+//     sopra la prova raddoppia l'attesa prima di risalire (5 s, 10 s ... 60 s); 60 s senza congestione la riportano a 5 s.
+constexpr double kMaxCapacityKBs = 1000.0;
+constexpr double kProbeFastRate = 0.10;    // EN: per second / IT: al secondo
+constexpr double kProbeRate = 0.03;        // EN: per second / IT: al secondo
+constexpr double kProbeFastBusy = 0.60;
+constexpr double kProbeBusyBelow = 0.85;
+constexpr double kSaturatedBusy = 0.95;
+constexpr double kFullFrame = 0.85;        // EN: share of the USB budget of its frame / IT: quota del budget USB del suo frame
+constexpr int kBusyWindowMs = 1000;
+constexpr int kBusyWindowFrames = 5;       // EN: fewer frames in the window: no judgement / IT: meno frame nella finestra: nessun giudizio
+constexpr int kProbeWaitMaxMs = 60000;
+constexpr int kProbeForgetMs = 60000;
 } // namespace
 
 DongleLink::DongleLink(const QString &location, QThread::Priority priority, QObject *parent)
@@ -177,6 +198,7 @@ void DongleLink::run()
             parser.idle(now);
         }
         if (ev.writeFinished) {
+            if (m_writing != Writing::None) m_winBusyMs += double(now - m_writeStartMs);   // EN: USB busy / IT: USB occupata
             if (m_writing == Writing::Video) {
                 // EN: congestion: one slice written in more than one frame time. / IT: congestione: una fascia scritta in piu' del tempo di un frame.
                 const double fps = m_txFrame ? m_txFrame->fps : 30.0;
@@ -185,6 +207,11 @@ void DongleLink::run()
             if (m_writing == Writing::Video && m_lastSliceWriting) {
                 ++m_framesSent;
                 m_videoBytesSent += quint64(m_txBytes);
+                // EN: frame that fills its USB budget (0.8 * C / fps, as the encoder computes it).
+                // IT: frame che riempie il suo budget USB (0,8 * C / fps, come lo calcola l'encoder).
+                ++m_winFrames;
+                const double frameFps = m_txFrame ? qMax(1.0, m_txFrame->fps) : 30.0;
+                if (double(m_txBytes) >= kFullFrame * kCreditShare * m_capacity.load() * 1000.0 / frameFps) ++m_winFull;
                 m_qSum += quint64(m_txQSum);
                 m_tx.clear();
                 m_txIndex = 0;
@@ -295,6 +322,30 @@ void DongleLink::writeFrame(const QByteArray &frame, Writing kind, qint64 now)
 
 void DongleLink::updateCredit(qint64 now)
 {
+    // EN: every second: how long the USB was busy, and how many frames filled their budget.
+    // IT: ogni secondo: quanto e' stata occupata la USB, e quanti frame hanno riempito il loro budget.
+    if (now - m_winStartMs >= kBusyWindowMs) {
+        const double busy = m_winBusyMs / double(now - m_winStartMs);
+        const bool video = m_winFrames >= kBusyWindowFrames;
+        m_probeOk = video && busy < kProbeBusyBelow && 2 * m_winFull >= m_winFrames;
+        m_probeFast = busy < kProbeFastBusy;
+        // EN: USB full above the value of the test, or without the test: congestion. At or below a measured value
+        //     nothing changes from before.
+        // IT: USB piena sopra il valore della prova, o senza la prova: congestione. Al valore misurato o sotto non
+        //     cambia niente da prima.
+        // EN: Without the test the new value also becomes the ceiling, so that it is not climbed back to at once.
+        // IT: Senza la prova il nuovo valore diventa anche il tetto, cosi' non ci si risale subito.
+        if (video && busy >= kSaturatedBusy && (m_capacity.load() > m_capacityTop || !m_capacityMeasured)) {
+            congestion(now);
+            if (!m_capacityMeasured) m_capacityTop = qMin(m_capacityTop, m_capacity.load());
+        }
+        m_winStartMs = now;
+        m_winBusyMs = 0.0;
+        m_winFrames = 0;
+        m_winFull = 0;
+    }
+    if (now - m_lastCongestionMs >= m_probeWaitMs + kProbeForgetMs) m_probeWaitMs = kRaiseAfterMs;
+
     const double c = m_capacity.load();
     const qint64 dt = now - m_creditMs;
     m_creditMs = now;
@@ -302,9 +353,13 @@ void DongleLink::updateCredit(qint64 now)
 
     // EN: 5 s without congestion: C goes up by 5% per second, up to the value of the test.
     // IT: 5 s senza congestione: C risale del 5% al secondo, fino al valore della prova.
+    const qint64 step = qMin<qint64>(now - m_lastRaiseMs, 1000);
     if (now - m_lastCongestionMs >= kRaiseAfterMs && c < m_capacityTop) {
-        const qint64 step = qMin<qint64>(now - m_lastRaiseMs, 1000);
         if (step > 0) m_capacity.store(qMin(m_capacityTop, c * (1.0 + 0.05 * double(step) / 1000.0)));
+    } else if (c >= m_capacityTop && c < kMaxCapacityKBs && m_probeOk && now - m_lastCongestionMs >= m_probeWaitMs) {
+        // EN: above the test, see kMaxCapacityKBs. / IT: sopra la prova, vedi kMaxCapacityKBs.
+        const double rate = m_probeFast ? kProbeFastRate : kProbeRate;
+        if (step > 0) m_capacity.store(qMin(kMaxCapacityKBs, c * (1.0 + rate * double(step) / 1000.0)));
     }
     m_lastRaiseMs = now;
 }
@@ -312,8 +367,11 @@ void DongleLink::updateCredit(qint64 now)
 void DongleLink::congestion(qint64 now)
 {
     m_lastCongestionMs = now;
+    m_probeOk = false;
     if (now - m_lastDecreaseMs < kDecreaseEveryMs) return;
     m_lastDecreaseMs = now;
+    // EN: hysteresis: a congestion above the test waits longer before the next try. / IT: isteresi: una congestione sopra la prova aspetta di piu' prima del prossimo tentativo.
+    if (m_capacity.load() > m_capacityTop) m_probeWaitMs = qMin<qint64>(kProbeWaitMaxMs, 2 * m_probeWaitMs);
     // EN: floor: half of the ceiling, at most 200 KB/s. / IT: minimo: meta' del tetto, al massimo 200 KB/s.
     m_capacity.store(qMax(qMin(kMinCapacityKBs, 0.5 * m_capacityTop), m_capacity.load() * 0.8));
 }
@@ -491,8 +549,9 @@ void DongleLink::finishBandwidthTest(double kBps)
 {
     if (!m_bwActive) return;
     m_bwActive = false;   // EN: the frame being written ends by itself / IT: la trama in scrittura finisce da sola
-    // EN: C starts from the measured value, or stays at 450 KB/s. / IT: C parte dal valore misurato, o resta a 450 KB/s.
+    // EN: C starts from the measured value, or stays at DefaultCapacityKBs. / IT: C parte dal valore misurato, o resta a DefaultCapacityKBs.
     if (kBps > 0.0) {
+        m_capacityMeasured = true;
         m_capacityTop = kBps;   // EN: also below 200: it is the measured ceiling / IT: anche sotto 200: e' il tetto misurato
         m_capacity.store(m_capacityTop);
     }

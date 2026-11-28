@@ -16,16 +16,18 @@
 //     writes one USB frame at a time: control messages first, then the bandwidth test or the video slices.
 //     START is a barrier: the frame being written ends, the old slices are dropped, then START and the new video.
 //     It is also the writer of the slot: it keeps the bandwidth credit (0.8 * C per second, at most 30 KB) and
-//     the estimate of C, sends PAUSE every 200 ms while the slot is paused and sends again the last frame really
-//     sent after 100 ms without new frames, only with a live source. A new frame always comes first.
+//     the estimate of C (down at every congestion, up to the test and then further while the USB has room),
+//     sends PAUSE every 200 ms while the slot is paused and sends again the last frame really sent after 100 ms
+//     without new frames, only with a live source. A new frame always comes first.
 //     The object lives in the main thread; its signals reach the main thread queued.
 // IT: Collegamento a un dongle: un thread per porta aperta, che non aspetta mai le altre porte. Apre la porta,
 //     chiede WHOAMI, legge le trame del dongle, misura una volta la banda USB mentre il dongle e' libero e
 //     scrive una trama USB alla volta: prima i messaggi di controllo, poi la prova di banda o le fasce video.
 //     START e' una barriera: la trama in scrittura finisce, le fasce vecchie si scartano, poi START e il video nuovo.
 //     E' anche lo scrittore dello slot: tiene il credito di banda (0,8 * C al secondo, al massimo 30 KB) e la
-//     stima di C, manda PAUSE ogni 200 ms mentre lo slot e' in pausa e rimanda l'ultimo frame davvero inviato
-//     dopo 100 ms senza frame nuovi, solo con la sorgente viva. Un frame nuovo passa sempre prima.
+//     stima di C (giu' a ogni congestione, su fino alla prova e poi oltre finche' la USB ha spazio), manda
+//     PAUSE ogni 200 ms mentre lo slot e' in pausa e rimanda l'ultimo frame davvero inviato dopo 100 ms senza
+//     frame nuovi, solo con la sorgente viva. Un frame nuovo passa sempre prima.
 //     L'oggetto vive nel thread principale; i suoi segnali arrivano al thread principale accodati.
 class DongleLink : public QThread
 {
@@ -53,7 +55,13 @@ public:
 
     // EN: estimated USB capacity C in KB/s, read by the encoder. / IT: capacita' USB stimata C in KB/s, letta dall'encoder.
     double capacityKBs() const { return m_capacity.load(); }
-    static constexpr double DefaultCapacityKBs = 450.0;
+    // EN: without the test (scope already paired at the opening, or test stopped by the pairing): a value that the
+    //     USB Serial/JTAG of the ESP32-C5 really carries (about 141 KB/s measured). If the USB has more room, C goes
+    //     up by itself above it (see kMaxCapacityKBs in DongleLink.cpp).
+    // IT: senza la prova (mirino gia' abbinato all'apertura, o prova fermata dall'abbinamento): un valore che la USB
+    //     Serial/JTAG dell'ESP32-C5 porta davvero (circa 141 KB/s misurati). Se la USB ha piu' spazio, C sale da sola
+    //     oltre (vedi kMaxCapacityKBs in DongleLink.cpp).
+    static constexpr double DefaultCapacityKBs = 150.0;
 
     // EN: counters read by the main thread once a second. / IT: contatori letti dal thread principale una volta al secondo.
     quint64 framesSent() const { return m_framesSent.load(); }
@@ -132,7 +140,15 @@ private:
     double m_credit = 0.0;
     qint64 m_creditMs = 0;
     std::atomic<double> m_capacity{ DefaultCapacityKBs };
-    double m_capacityTop = DefaultCapacityKBs;   // EN: value of the test, or 450 / IT: valore della prova, o 450
+    double m_capacityTop = DefaultCapacityKBs;   // EN: value of the test, or DefaultCapacityKBs; above it C goes on up only while the USB has room / IT: valore della prova, o DefaultCapacityKBs; sopra C continua a salire solo mentre la USB ha spazio
+    bool m_capacityMeasured = false;  // EN: m_capacityTop comes from the test / IT: m_capacityTop viene dalla prova
+    qint64 m_probeWaitMs = 5000;      // EN: wait without congestion before going up above the test / IT: attesa senza congestione prima di salire sopra la prova
+    bool m_probeOk = false;           // EN: last second: frames full and USB with room / IT: ultimo secondo: frame pieni e USB con spazio
+    bool m_probeFast = false;         // EN: last second: USB busy less than 60% / IT: ultimo secondo: USB occupata meno del 60%
+    qint64 m_winStartMs = 0;          // EN: window of one second / IT: finestra di un secondo
+    double m_winBusyMs = 0.0;         // EN: time spent writing in the window / IT: tempo passato a scrivere nella finestra
+    int m_winFrames = 0;              // EN: frames sent whole in the window / IT: frame inviati interi nella finestra
+    int m_winFull = 0;                // EN: of which filling their USB budget / IT: di cui che riempiono il loro budget USB
     qint64 m_lastCongestionMs = -1000000;
     qint64 m_lastDecreaseMs = -1000000;
     qint64 m_lastRaiseMs = 0;
